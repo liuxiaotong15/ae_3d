@@ -40,12 +40,12 @@ class autoencoder(nn.Module):
             nn.Conv3d(in_channels=1, out_channels=4, kernel_size=2, stride=2, padding=0),  # b, 16, 10, 10
             nn.ReLU(True),
             # nn.MaxPool2d(2, stride=2),  # b, 16, 5, 5
-            nn.Conv3d(4, 1, 2, stride=2, padding=0),  # b, 8, 3, 3
+            nn.Conv3d(4, 2, 2, stride=2, padding=0),  # b, 8, 3, 3
             nn.ReLU(True),
             # nn.MaxPool2d(2, stride=1)  # b, 8, 2, 2
         )
         self.decoder = nn.Sequential(
-            nn.ConvTranspose3d(1, 4, 2, stride=2),  # b, 16, 5, 5
+            nn.ConvTranspose3d(2, 4, 2, stride=2),  # b, 16, 5, 5
             nn.ReLU(True),
             nn.ConvTranspose3d(4, 1, 2, stride=2, padding=0),  # b, 8, 15, 15
             # nn.ReLU(True),
@@ -54,8 +54,11 @@ class autoencoder(nn.Module):
         )
  
     def forward(self, x):
+        print('input shape: ', x.shape)
         x = self.encoder(x)
+        print('latent shape: ', x.shape)
         x = self.decoder(x)
+        print('output shape: ', x.shape)
         return x
  
  
