@@ -85,6 +85,7 @@ for epoch in range(num_epochs):
     # ===================log========================
         print('epoch [{}/{}], loss:{:.4f}'.format(epoch+1, num_epochs, loss.item()))
     elif training_type == 1:
+        # TODO: load model
         latent_output = model.encoder(img)
         latent_output = torch.flatten(latent_output, start_dim=1)
         print('latent output shape in main: ', latent_output.shape)
@@ -99,5 +100,6 @@ for epoch in range(num_epochs):
         print('epoch [{}/{}], loss:{:.4f}'.format(epoch+1, num_epochs, loss.item()))
     else:
         pass
- 
-torch.save(model.state_dict(), './conv_autoencoder.pth')
+
+if training_type == 0: 
+    torch.save(model.state_dict(), './conv_autoencoder.pth')
