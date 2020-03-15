@@ -77,9 +77,8 @@ if training_type == 1:
     model.eval()
 
 for epoch in range(num_epochs):
-    # ===================forward=====================
-    # print(img.shape)
     if training_type == 0:    
+    # ===================forward=====================
         output = model(img)
         loss = criterion(output, img)
     # ===================backward====================
