@@ -9,17 +9,6 @@ from torchvision.datasets import MNIST
 import os
 
 training_type = 1 # 0: ae_training; 1: prediction_training
-
-if not os.path.exists('./dc_img'):
-    os.mkdir('./dc_img')
- 
- 
-def to_img(x):
-    x = 0.5 * (x + 1)
-    x = x.clamp(0, 1)
-    x = x.view(x.size(0), 1, 28, 28)
-    return x
- 
  
 num_epochs = 1000
 batch_size = 128
@@ -84,9 +73,6 @@ img = torch.randn(128, 1, 28, 28, 28)
 prpty = torch.randn(128,1)
 
 for epoch in range(num_epochs):
-    # for data in dataloader:
-    # img, _ = data
-    # img = Variable(img)# .cuda()
     # ===================forward=====================
     # print(img.shape)
     if training_type == 0:    
@@ -113,8 +99,5 @@ for epoch in range(num_epochs):
         print('epoch [{}/{}], loss:{:.4f}'.format(epoch+1, num_epochs, loss.item()))
     else:
         pass
-        # if epoch % 10 == 0:
-    #     pic = to_img(output.cpu().data)
-    #     save_image(pic, './dc_img/image_{}.png'.format(epoch))
  
 torch.save(model.state_dict(), './conv_autoencoder.pth')
