@@ -7,7 +7,9 @@ from torchvision import transforms
 from torchvision.utils import save_image
 from torchvision.datasets import MNIST
 import os
- 
+
+training_type = 1 # 0: ae_training; 1: prediction_training
+
 if not os.path.exists('./dc_img'):
     os.mkdir('./dc_img')
  
@@ -52,6 +54,17 @@ class autoencoder(nn.Module):
             # nn.ConvTranspose3d(1, 1, 2, stride=2, padding=1),  # b, 1, 28, 28
             nn.Tanh()
         )
+        self.prediction = nn.Sequential(
+            nn.Linear(686, 256),
+            nn.ReLU(True),
+            nn.Linear(256, 128),
+            nn.ReLU(True),
+            nn.Linear(128, 64),
+            nn.ReLU(True),
+            nn.Linear(64, 32),
+            nn.ReLU(True),
+            nn.Linear(32, 1),
+        )
  
     def forward(self, x):
         print('input shape: ', x.shape)
@@ -68,21 +81,39 @@ optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate,
                              weight_decay=1e-5)
 
 img = torch.randn(128, 1, 28, 28, 28)
+prpty = torch.randn(128,1)
+
 for epoch in range(num_epochs):
     # for data in dataloader:
     # img, _ = data
     # img = Variable(img)# .cuda()
     # ===================forward=====================
     # print(img.shape)
-    output = model(img)
-    loss = criterion(output, img)
+    if training_type == 0:    
+        output = model(img)
+        loss = criterion(output, img)
     # ===================backward====================
-    optimizer.zero_grad()
-    loss.backward()
-    optimizer.step()
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
     # ===================log========================
-    print('epoch [{}/{}], loss:{:.4f}'.format(epoch+1, num_epochs, loss.item()))
-    # if epoch % 10 == 0:
+        print('epoch [{}/{}], loss:{:.4f}'.format(epoch+1, num_epochs, loss.item()))
+    elif training_type == 1:
+        latent_output = model.encoder(img)
+        latent_output = torch.flatten(latent_output, start_dim=1)
+        print('latent output shape in main: ', latent_output.shape)
+        predict_property = model.prediction(latent_output)
+        print('property output shape in main: ', predict_property.shape)
+        loss = criterion(predict_property, prpty)
+    # ===================backward====================
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+    # ===================log========================
+        print('epoch [{}/{}], loss:{:.4f}'.format(epoch+1, num_epochs, loss.item()))
+    else:
+        pass
+        # if epoch % 10 == 0:
     #     pic = to_img(output.cpu().data)
     #     save_image(pic, './dc_img/image_{}.png'.format(epoch))
  
