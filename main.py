@@ -9,7 +9,8 @@ from torchvision.datasets import MNIST
 import os
 
 training_type = 1 # 0: ae_training; 1: prediction_training
- 
+model_dump_name = './conv_autoencoder.pth'
+
 num_epochs = 100
 batch_size = 128
 learning_rate = 1e-3
@@ -56,11 +57,11 @@ class autoencoder(nn.Module):
         )
  
     def forward(self, x):
-        print('input shape: ', x.shape)
+        # print('input shape: ', x.shape)
         x = self.encoder(x)
-        print('latent shape: ', x.shape)
+        # print('latent shape: ', x.shape)
         x = self.decoder(x)
-        print('output shape: ', x.shape)
+        # print('output shape: ', x.shape)
         return x
  
  
@@ -73,7 +74,7 @@ img = torch.randn(128, 1, 28, 28, 28)
 prpty = torch.randn(128,1)
 
 if training_type == 1: 
-    model.load_state_dict(torch.load('./conv_autoencoder.pth'))
+    model.load_state_dict(torch.load(model_dump_name))
     model.eval()
 
 for epoch in range(num_epochs):
@@ -106,4 +107,4 @@ for epoch in range(num_epochs):
         pass
 
 if training_type == 0: 
-    torch.save(model.state_dict(), './conv_autoencoder.pth')
+    torch.save(model.state_dict(), model_dump_name)
