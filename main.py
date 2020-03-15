@@ -10,7 +10,7 @@ import os
 
 training_type = 1 # 0: ae_training; 1: prediction_training
  
-num_epochs = 1000
+num_epochs = 100
 batch_size = 128
 learning_rate = 1e-3
  
@@ -72,6 +72,10 @@ optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate,
 img = torch.randn(128, 1, 28, 28, 28)
 prpty = torch.randn(128,1)
 
+if training_type == 1: 
+    model.load_state_dict(torch.load('./conv_autoencoder.pth'))
+    model.eval()
+
 for epoch in range(num_epochs):
     # ===================forward=====================
     # print(img.shape)
@@ -85,7 +89,6 @@ for epoch in range(num_epochs):
     # ===================log========================
         print('epoch [{}/{}], loss:{:.4f}'.format(epoch+1, num_epochs, loss.item()))
     elif training_type == 1:
-        # TODO: load model
         latent_output = model.encoder(img)
         latent_output = torch.flatten(latent_output, start_dim=1)
         print('latent output shape in main: ', latent_output.shape)
@@ -93,6 +96,8 @@ for epoch in range(num_epochs):
         print('property output shape in main: ', predict_property.shape)
         loss = criterion(predict_property, prpty)
     # ===================backward====================
+        for p in model.encoder.parameters():
+            p.requires_grad = False
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
