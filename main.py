@@ -8,8 +8,9 @@ from torchvision.utils import save_image
 from torchvision.datasets import MNIST
 import os
 
-training_type = 1 # 0: ae_training; 1: prediction_training
+training_type = 0 # 0: ae_training; 1: prediction_training
 model_dump_name = './conv_autoencoder.pth'
+side_length = 50 # * 0.1A
 
 num_epochs = 100
 batch_size = 128
@@ -29,20 +30,24 @@ class autoencoder(nn.Module):
     def __init__(self):
         super(autoencoder, self).__init__()
         self.encoder = nn.Sequential(
-            nn.Conv3d(in_channels=1, out_channels=4, kernel_size=2, stride=2, padding=0),  # b, 16, 10, 10
+            # 1, 28, 28, 28
+            nn.Conv3d(in_channels=1, out_channels=4, kernel_size=2, stride=2, padding=0),
             nn.ReLU(True),
-            # nn.MaxPool2d(2, stride=2),  # b, 16, 5, 5
-            nn.Conv3d(4, 2, 2, stride=2, padding=0),  # b, 8, 3, 3
+            # 4, 14, 14, 14
+            # nn.MaxPool2d(2, stride=2),
+            nn.Conv3d(4, 2, 2, stride=2, padding=0),
             nn.ReLU(True),
-            # nn.MaxPool2d(2, stride=1)  # b, 8, 2, 2
+            # 2, 7, 7, 7
+            # nn.MaxPool2d(2, stride=1)
         )
         self.decoder = nn.Sequential(
-            nn.ConvTranspose3d(2, 4, 2, stride=2),  # b, 16, 5, 5
+            nn.ConvTranspose3d(2, 4, 2, stride=2),
             nn.ReLU(True),
-            nn.ConvTranspose3d(4, 1, 2, stride=2, padding=0),  # b, 8, 15, 15
+            # 4, 14, 14, 14
+            nn.ConvTranspose3d(4, 1, 2, stride=2, padding=0),
+            # 1, 28, 28, 28
             # nn.ReLU(True),
-            # nn.ConvTranspose3d(1, 1, 2, stride=2, padding=1),  # b, 1, 28, 28
-            nn.Tanh()
+            # nn.Tanh()
         )
         self.prediction = nn.Sequential(
             nn.Linear(686, 256),
@@ -59,7 +64,7 @@ class autoencoder(nn.Module):
     def forward(self, x):
         # print('input shape: ', x.shape)
         x = self.encoder(x)
-        # print('latent shape: ', x.shape)
+        print('latent shape: ', x.shape)
         x = self.decoder(x)
         # print('output shape: ', x.shape)
         return x
@@ -67,8 +72,8 @@ class autoencoder(nn.Module):
  
 model = autoencoder()#.cuda()
 criterion = nn.MSELoss()
-optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate,
-                             weight_decay=1e-5)
+optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate,)
+                             # weight_decay=1e-5)
 
 img = torch.randn(128, 1, 28, 28, 28)
 prpty = torch.randn(128,1)
