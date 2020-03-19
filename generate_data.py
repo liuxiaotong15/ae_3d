@@ -18,9 +18,9 @@ from ase.constraints import FixAtoms
 
 voxel_side_cnt = 50
 side_len = 5 
-seed = 1234
-random.seed(seed)
-np.random.seed(seed)
+# seed = 1234
+# random.seed(seed)
+# np.random.seed(seed)
 
 def generate_atoms_random():
     atoms = Atoms()
@@ -48,24 +48,25 @@ def atoms2array1d(at):
     # view2d.view2d(volume, voxel_side_cnt)
     return list(volume.reshape(-1))
 
-def save_atom_enregy_h5(at_lst):
-    idx = 0
+def save_atom_enregy_h5(at_lst, idx=0):
     os.system('rm -rf ' + 'dataset_' + str(idx+1) + '.hdf5')
     f = h5py.File('dataset_' + str(idx+1) + '.hdf5', 'w')
     f.create_group('/grp1') # or f.create_group('grp1')
     f.create_dataset('dset1', compression='gzip', data=np.array(at_lst)) # or f.create_dataset('/dset1', data=data)
     f.close()
 
+def multi_thd_func(seed):
+    print(seed)
+    random.seed = seed
+    at = generate_atoms_random()
+    tmp = atoms2array1d(at)
+    tmp.append(cal_atoms_energy(at))
+    return tmp
+
 def main():
-    dataset = []
-    for i in range(100):
-        print(i)
-        at = generate_atoms_random()
-        tmp = atoms2array1d(at)
-        tmp.append(cal_atoms_energy(at))
-        dataset.append(tmp)
-        # time.sleep(0.01)
-    # print(dataset)
+    import multiprocessing
+    pool = multiprocessing.Pool(2)
+    dataset = pool.map(multi_thd_func, range(100))
     save_atom_enregy_h5(dataset)
 
 # write to HDF5

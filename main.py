@@ -93,6 +93,7 @@ for i in range(100):
     # print(v)
     # print(dataset[-1])
 f.close()
+# print(prpty)
 img = torch.from_numpy(np.array(img)).to('cpu').float()
 prpty = torch.from_numpy(np.array(prpty)).to('cpu').float()
 
