@@ -1,4 +1,5 @@
 import torch
+import h5py
 import torchvision
 from torch import nn
 from torch.autograd import Variable
@@ -7,6 +8,7 @@ from torchvision import transforms
 from torchvision.utils import save_image
 from torchvision.datasets import MNIST
 import os
+import numpy as np
 
 training_type = 0 # 0: ae_training; 1: prediction_training
 model_dump_name = './conv_autoencoder.pth'
@@ -31,26 +33,28 @@ class autoencoder(nn.Module):
         super(autoencoder, self).__init__()
         self.encoder = nn.Sequential(
             # 1, 28, 28, 28
+            # 1, 50, 50, 50 
             nn.Conv3d(in_channels=1, out_channels=4, kernel_size=2, stride=2, padding=0),
             nn.ReLU(True),
-            # 4, 14, 14, 14
+            # 4, 25, 25, 25 
             # nn.MaxPool2d(2, stride=2),
-            nn.Conv3d(4, 2, 2, stride=2, padding=0),
+            nn.Conv3d(4, 2, 5, stride=5, padding=0),
             nn.ReLU(True),
-            # 2, 7, 7, 7
+            # 2, 5, 5, 5
             # nn.MaxPool2d(2, stride=1)
         )
         self.decoder = nn.Sequential(
-            nn.ConvTranspose3d(2, 4, 2, stride=2),
+            nn.ConvTranspose3d(2, 4, 5, stride=5),
             nn.ReLU(True),
             # 4, 14, 14, 14
+            # 4, 25, 25, 25
             nn.ConvTranspose3d(4, 1, 2, stride=2, padding=0),
-            # 1, 28, 28, 28
+            # 1, 50, 50, 50 
             # nn.ReLU(True),
             # nn.Tanh()
         )
         self.prediction = nn.Sequential(
-            nn.Linear(686, 256),
+            nn.Linear(250, 256),
             nn.ReLU(True),
             nn.Linear(256, 128),
             nn.ReLU(True),
@@ -74,11 +78,26 @@ model = autoencoder()#.cuda()
 criterion = nn.MSELoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate,)
                              # weight_decay=1e-5)
+size = side_length
+# img = torch.randn(128, 1, 28, 28, 28)
+idx = 0
+f = h5py.File('dataset_' + str(idx+1) + '.hdf5', 'r')
+dataset = f['dset1'][:]
+img = []
+prpty = []
+for i in range(100):
+    v = np.array(dataset[i][:-1])
+    v = v.reshape(1,size,size,size)
+    img.append(v)
+    prpty.append(dataset[i][-1])
+    # print(v)
+    # print(dataset[-1])
+f.close()
+img = torch.from_numpy(np.array(img)).to('cpu').float()
+prpty = torch.from_numpy(np.array(prpty)).to('cpu').float()
 
-img = torch.randn(128, 1, 28, 28, 28)
-prpty = torch.randn(128,1)
-
-if training_type == 1: 
+if training_type == 1:
+    # prpty = torch.randn(128,1)
     model.load_state_dict(torch.load(model_dump_name))
     model.eval()
 

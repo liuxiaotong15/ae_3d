@@ -26,7 +26,7 @@ def main():
     # ax = fig.add_subplot(1, 1, 1, projection='3d')
     ax = plt.subplot(111)
     cm = plt.cm.get_cmap('viridis_r')
-    im = ax.imshow(cnt, cmap=cm, vmin=0, vmax=1)
+    im = ax.imshow(cnt, cmap=cm, vmin=0, vmax=5)
     # im = ax.imshow(cnt)
     xticks = range(0, detail_cnt+1, 5)
     xlabels = [el for el in range(0, detail_cnt+1, 5)]
@@ -61,15 +61,16 @@ def main():
 
     plt.show()
 
-if __name__ == '__main__':
-    size = 50
-    volume = np.random.rand(size, size, size)
+# if __name__ == '__main__':
+#     size = 50
+#     volume = np.random.rand(size, size, size)
     # print(volume.shape, volume[0:size][1][0:size].shape, volume[0].shape)
     # print(np.sum(volume[0]), np.sum(volume[0:size][1][0:size]), np.sum(volume[0:size][0:size][1]))
     # print(volume, volume[0:size][0][0:size], volume[0][0:size][0:size])
     # print(volume)
     # print(volume[0, 0, 0:size], volume[0, 0:size, 0])
     # print(volume[0][0][0:size], volume[0][0:size][0], volume[0][0][0])
+def view2d(volume, size):
     max_sum = 0
     for i in range(size):
         if np.sum(volume[0:size, i, 0:size]) > max_sum:
