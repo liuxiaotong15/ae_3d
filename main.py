@@ -100,7 +100,7 @@ prpty = torch.from_numpy(np.array(prpty)).to('cpu').float()
 if training_type == 1:
     # prpty = torch.randn(128,1)
     model.load_state_dict(torch.load(model_dump_name))
-    model.eval()
+    # model.eval()
 
 for epoch in range(num_epochs):
     if training_type == 0:    
