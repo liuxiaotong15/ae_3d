@@ -65,9 +65,9 @@ def multi_thd_func(seed):
 
 def main():
     import multiprocessing
-    pool = multiprocessing.Pool(2)
-    cnt = 1e6
-    dataset = pool.map(multi_thd_func, range(cnt))
+    pool = multiprocessing.Pool(4)
+    cnt = 5e3
+    dataset = pool.map(multi_thd_func, range(int(cnt)))
     save_atom_enregy_h5(dataset)
 
 # write to HDF5
