@@ -98,7 +98,7 @@ f = h5py.File('dataset_' + str(idx+1) + '.hdf5', 'r')
 dataset = f['dset1'][:]
 img = []
 prpty = []
-print('data count: ', len(dataset))
+print('data count: ', len(dataset), 'max/min img data: ', max(dataset[:][:-1]), min(dataset[:][:-1]))
 for i in range(len(dataset)):
     # TODO: add data msg
     v = np.array(dataset[i][:-1])
