@@ -27,10 +27,11 @@ else:
 model_dump_name = './conv_autoencoder.pth'
 side_length = 50 # * 0.1A
 
+patience = 10
 num_epochs = 10000
-batch_size = 64 
+batch_size = 64 # TODO: enable it! 
 learning_rate = 1e-3
- 
+
 img_transform = transforms.Compose([
     transforms.ToTensor(),
     # transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
@@ -103,6 +104,8 @@ print('data count: ', len(dataset))
 print('max/min/avg img data: ', np.max(dataset[:, :-1]), np.min(dataset[:, :-1]), np.average(dataset[:, :-1]))
 print('max/min/avg raw property data: ', np.max(dataset[:, -1]), np.min(dataset[:, -1]), np.average(dataset[:, -1]))
 
+# TODO:divide dataset into tr/te/va
+
 max_p = np.max(dataset[:, -1])
 for i in range(len(dataset)):
     # TODO: add data msg
@@ -127,6 +130,8 @@ if training_type == 1:
     model.load_state_dict(torch.load(model_dump_name))
     # model.eval()
 
+patience_tmp = 0
+loss_min = 10000
 for epoch in range(num_epochs):
     if training_type == 0:    
     # ===================forward=====================
@@ -138,6 +143,14 @@ for epoch in range(num_epochs):
         optimizer.step()
     # ===================log========================
         print('epoch [{}/{}], loss:{:.4f}'.format(epoch+1, num_epochs, loss.item()))
+        if loss.item()<loss_min:
+            patience_tmp = 0
+            loss_min = loss.item()
+            torch.save(model.state_dict(), model_dump_name + str(epoch))
+        else:
+            patience_tmp += 1
+        if patience_tmp >= patience:
+            break
     elif training_type == 1:
         latent_output = model.encoder(img)
         latent_output = torch.flatten(latent_output, start_dim=1)
