@@ -20,11 +20,13 @@ args = parser.parse_args()      # parse_args()从指定的选项中返回一些�
 
 if args.mode == 'ae':
     training_type = 0 # 0: ae_training; 1: prediction_training
+    model_dump_name = './conv_ae.pth'
 elif args.mode == 'pred':
     training_type = 1 # 0: ae_training; 1: prediction_training
+    model_dump_name = './conv_pred.pth'
 else:
     training_type = -1
-model_dump_name = './conv_autoencoder.pth'
+    model_dump_name = './conv_default.pth'
 side_length = 50 # * 0.1A
 
 patience = 10
@@ -162,15 +164,16 @@ for epoch in range(num_epochs):
         loss = criterion(output, img[int(0.9*total_cnt):])
     # ===================log========================
         print('epoch [{}/{}], test loss:{:.4f}'.format(epoch+1, num_epochs, loss.item()))
-        if patience_tmp >= patience:
-            break
+        print('-' * 100)
     elif training_type == 1:
-        latent_output = model.encoder(img)
+    # ===================forward=====================
+        model.train()
+        latent_output = model.encoder(img[:int(0.8*total_cnt)])
         latent_output = torch.flatten(latent_output, start_dim=1)
-        print('latent output shape in main: ', latent_output.shape)
+        # print('latent output shape in main: ', latent_output.shape)
         predict_property = model.prediction(latent_output)
-        print('property output shape in main: ', predict_property.shape)
-        loss = criterion(predict_property, prpty)
+        # print('property output shape in main: ', predict_property.shape)
+        loss = criterion(predict_property, prpty[:int(0.8*total_cnt)])
     # ===================backward====================
         for p in model.encoder.parameters():
             p.requires_grad = False
@@ -179,8 +182,33 @@ for epoch in range(num_epochs):
         optimizer.step()
     # ===================log========================
         print('epoch [{}/{}], loss:{:.4f}'.format(epoch+1, num_epochs, loss.item()))
+    # ===================vali=======================
+        model.eval()
+        latent_output = model.encoder(img[int(0.8*total_cnt):int(0.9*total_cnt)])
+        latent_output = torch.flatten(latent_output, start_dim=1)
+        predict_property = model.prediction(latent_output)
+        loss = criterion(predict_property, prpty[int(0.8*total_cnt):int(0.9*total_cnt)])
+    # ===================log========================
+        print('epoch [{}/{}], vali loss:{:.4f}, pat:{}'.format(epoch+1, num_epochs, loss.item(), patience_tmp))
+        if loss.item()<loss_min:
+            patience_tmp = 0
+            loss_min = loss.item()
+            torch.save(model.state_dict(), model_dump_name + str(epoch))
+        else:
+            patience_tmp += 1
+    # ===================test=======================
+        model.eval()
+        latent_output = model.encoder(img[int(0.9*total_cnt):])
+        latent_output = torch.flatten(latent_output, start_dim=1)
+        predict_property = model.prediction(latent_output)
+        loss = criterion(predict_property, prpty[int(0.9*total_cnt):])
+    # ===================log========================
+        print('epoch [{}/{}], test loss:{:.4f}'.format(epoch+1, num_epochs, loss.item()))
+        print('-' * 100)
     else:
         pass
+    if patience_tmp >= patience:
+            break
 
-if training_type == 0: 
-    torch.save(model.state_dict(), model_dump_name)
+# if training_type == 0: 
+#     torch.save(model.state_dict(), model_dump_name)
