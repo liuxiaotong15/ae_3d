@@ -142,7 +142,7 @@ for epoch in range(num_epochs):
         loss.backward()
         optimizer.step()
     # ===================log========================
-        print('epoch [{}/{}], loss:{:.4f}, pat:{}'.format(epoch+1, num_epochs, loss.item()))
+        print('epoch [{}/{}], loss:{:.4f}, pat:{}'.format(epoch+1, num_epochs, loss.item(), patience_tmp))
         if loss.item()<loss_min:
             patience_tmp = 0
             loss_min = loss.item()
