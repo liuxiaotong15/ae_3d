@@ -28,7 +28,7 @@ model_dump_name = './conv_autoencoder.pth'
 side_length = 50 # * 0.1A
 
 num_epochs = 10000
-batch_size = 128
+batch_size = 64 
 learning_rate = 1e-3
  
 img_transform = transforms.Compose([
@@ -98,16 +98,26 @@ f = h5py.File('dataset_' + str(idx+1) + '.hdf5', 'r')
 dataset = f['dset1'][:]
 img = []
 prpty = []
-print('data count: ', len(dataset), 'max/min img data: ', max(dataset[:][:-1]), min(dataset[:][:-1]))
+print(type(dataset[:][:-1]))
+print('data count: ', len(dataset))
+print('max/min/avg img data: ', np.max(dataset[:, :-1]), np.min(dataset[:, :-1]), np.average(dataset[:, :-1]))
+print('max/min/avg raw property data: ', np.max(dataset[:, -1]), np.min(dataset[:, -1]), np.average(dataset[:, -1]))
+
+max_p = np.max(dataset[:, -1])
 for i in range(len(dataset)):
     # TODO: add data msg
     v = np.array(dataset[i][:-1])
     v = v.reshape(1,size,size,size)
     img.append(v)
-    prpty.append(dataset[i][-1])
+    p = dataset[i][-1]
+    if p > 0:
+        p = p / max_p
+    prpty.append(p)
     # print(v)
     # print(dataset[-1])
 f.close()
+
+print('max/min/avg modified property data: ', max(prpty), min(prpty), np.average(np.array(prpty)))
 # print(prpty)
 img = torch.from_numpy(np.array(img)).to('cpu').float()
 prpty = torch.from_numpy(np.array(prpty)).to('cpu').float()
