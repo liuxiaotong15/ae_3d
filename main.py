@@ -147,7 +147,7 @@ for epoch in range(num_epochs):
     # ===================vali=======================
         model.eval()
         output = model(img[int(0.8*total_cnt):int(0.9*total_cnt)])
-        loss = criterion(output[int(0.8*total_cnt):int(0.9*total_cnt)], img[int(0.8*total_cnt):int(0.9*total_cnt)])
+        loss = criterion(output, img[int(0.8*total_cnt):int(0.9*total_cnt)])
     # ===================log========================
         print('epoch [{}/{}], vali loss:{:.4f}, pat:{}'.format(epoch+1, num_epochs, loss.item(), patience_tmp))
         if loss.item()<loss_min:
@@ -159,7 +159,7 @@ for epoch in range(num_epochs):
     # ===================test=======================
         model.eval()
         output = model(img[int(0.9*total_cnt):])
-        loss = criterion(output[int(0.9*total_cnt):], img[int(0.9*total_cnt):])
+        loss = criterion(output, img[int(0.9*total_cnt):])
     # ===================log========================
         print('epoch [{}/{}], test loss:{:.4f}'.format(epoch+1, num_epochs, loss.item()))
         if patience_tmp >= patience:
