@@ -82,7 +82,7 @@ class autoencoder(nn.Module):
     def forward(self, x):
         # print('input shape: ', x.shape)
         x = self.encoder(x)
-        print('latent shape: ', x.shape)
+        # print('latent shape: ', x.shape)
         x = self.decoder(x)
         # print('output shape: ', x.shape)
         return x
@@ -142,7 +142,7 @@ for epoch in range(num_epochs):
         loss.backward()
         optimizer.step()
     # ===================log========================
-        print('epoch [{}/{}], loss:{:.4f}, pat:{}'.format(epoch+1, num_epochs, loss.item(), patience_tmp))
+        print('epoch [{}/{}], loss:{:.4f}, pat:{}'.format(epoch+1, num_epochs, loss.item()))
         if loss.item()<loss_min:
             patience_tmp = 0
             loss_min = loss.item()
