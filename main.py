@@ -106,9 +106,9 @@ print('max/min/avg raw property data: ', np.max(dataset[:, -1]), np.min(dataset[
 
 # TODO:divide dataset into tr/te/va
 
+total_cnt = len(dataset)
 max_p = np.max(dataset[:, -1])
-for i in range(len(dataset)):
-    # TODO: add data msg
+for i in range(total_cnt):
     v = np.array(dataset[i][:-1])
     v = v.reshape(1,size,size,size)
     img.append(v)
@@ -135,20 +135,33 @@ loss_min = 10000
 for epoch in range(num_epochs):
     if training_type == 0:    
     # ===================forward=====================
-        output = model(img)
-        loss = criterion(output, img)
+        model.train()
+        output = model(img[:int(0.8 * total_cnt)])
+        loss = criterion(output[:int(0.8 * total_cnt)], img[:int(0.8 * total_cnt)])
     # ===================backward====================
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
     # ===================log========================
-        print('epoch [{}/{}], loss:{:.4f}, pat:{}'.format(epoch+1, num_epochs, loss.item(), patience_tmp))
+        print('epoch [{}/{}], train loss:{:.4f}'.format(epoch+1, num_epochs, loss.item()))
+    # ===================vali=======================
+        model.eval()
+        output = model(img[int(0.8*total_cnt):int(0.9*total_cnt)])
+        loss = criterion(output[int(0.8*total_cnt):int(0.9*total_cnt)], img[int(0.8*total_cnt):int(0.9*total_cnt)])
+    # ===================log========================
+        print('epoch [{}/{}], vali loss:{:.4f}, pat:{}'.format(epoch+1, num_epochs, loss.item(), patience_tmp))
         if loss.item()<loss_min:
             patience_tmp = 0
             loss_min = loss.item()
             torch.save(model.state_dict(), model_dump_name + str(epoch))
         else:
             patience_tmp += 1
+    # ===================test=======================
+        model.eval()
+        output = model(img[int(0.9*total_cnt):])
+        loss = criterion(output[int(0.9*total_cnt):], img[int(0.9*total_cnt):])
+    # ===================log========================
+        print('epoch [{}/{}], test loss:{:.4f}'.format(epoch+1, num_epochs, loss.item()))
         if patience_tmp >= patience:
             break
     elif training_type == 1:
