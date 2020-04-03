@@ -9,6 +9,11 @@ from torchvision.utils import save_image
 from torchvision.datasets import MNIST
 import os
 import numpy as np
+import random
+
+seed = 1234
+random.seed(seed)
+np.random.seed(seed)
 
 import argparse
 parser = argparse.ArgumentParser()
