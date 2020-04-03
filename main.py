@@ -98,7 +98,9 @@ f = h5py.File('dataset_' + str(idx+1) + '.hdf5', 'r')
 dataset = f['dset1'][:]
 img = []
 prpty = []
-for i in range(100):
+print('data count: ', len(dataset))
+for i in range(len(dataset)):
+    # TODO: add data msg
     v = np.array(dataset[i][:-1])
     v = v.reshape(1,size,size,size)
     img.append(v)
