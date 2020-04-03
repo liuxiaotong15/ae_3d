@@ -10,11 +10,24 @@ from torchvision.datasets import MNIST
 import os
 import numpy as np
 
-training_type = 0 # 0: ae_training; 1: prediction_training
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument('--mode', '-m', required = True,
+        choices=['ae', 'pred'],
+        help = '\'ae\' autoencoder, \
+        \'pred\' prediction.')
+args = parser.parse_args()      # parse_args()从指定的选项中返回一些数据
+
+if args.mode == 'ae':
+    training_type = 0 # 0: ae_training; 1: prediction_training
+elif args.mode == 'pred':
+    training_type = 1 # 0: ae_training; 1: prediction_training
+else:
+    training_type = -1
 model_dump_name = './conv_autoencoder.pth'
 side_length = 50 # * 0.1A
 
-num_epochs = 100
+num_epochs = 10000
 batch_size = 128
 learning_rate = 1e-3
  
