@@ -135,6 +135,11 @@ if training_type == 1:
 patience_tmp = 0
 loss_min = 10000
 for epoch in range(num_epochs):
+    if epoch > 500:
+        lr = 1e-4
+        for param_group in optimizer.param_groups:
+            param_group['lr'] = lr
+
     if training_type == 0:    
     # ===================forward=====================
         model.train()
