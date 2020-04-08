@@ -1,7 +1,21 @@
+import itertools
+import math
 import random
 import numpy as np
 
 from gym.spaces.box import Box
+
+from ase import Atoms
+from ase import Atom
+from ase.visualize import view
+from ase.io import read, write
+from ase.io.trajectory import TrajectoryWriter
+from ase.calculators.vasp import Vasp
+from ase.calculators.morse import MorsePotential
+from ase.calculators.emt import EMT
+from ase.optimize import QuasiNewton, BFGS
+from ase.constraints import FixAtoms
+
 
 seed = 1234
 random.seed(seed)
@@ -26,17 +40,32 @@ std_ans_morse_clst = \
 ]
 
 state_voxels = np.zeros((1, stt_sz, stt_sz, stt_sz))
+voxel_side_cnt = 50
+side_len = 5
 
-def atoms2voxels(atoms):
+def atoms2voxels(at):
     # 50*50*50 voxel returned
-    pass
+    sigma = 1
+    # volume = np.random.rand(voxel_side_cnt, voxel_side_cnt, voxel_side_cnt)
+    volume = np.zeros((1, voxel_side_cnt, voxel_side_cnt, voxel_side_cnt), dtype=float)
+    for idx in range(len(at)):
+        for i, j, k in itertools.product(range(voxel_side_cnt),
+                                        range(voxel_side_cnt),
+                                        range(voxel_side_cnt)):
+            x, y, z = i/voxel_side_cnt * side_len, j/voxel_side_cnt * side_len, k/voxel_side_cnt * side_len
+            pow_sum = (x-at[idx].position[0])**2 + (y-at[idx].position[1])**2 + (z-at[idx].position[2])**2
+            volume[0][i][j][k] += math.exp(-1*pow_sum/(2*sigma**2))
+    return volume
 
 def reset():
     global state_voxels
     observation_space = Box(low=np.array(
         [-1]*stt_sz), high=np.array([1]*stt_sz),
         dtype=np.float32)  # don't care about observation_space low and high
-    # TODO: return 1 atom at the center of the box
+    # DONE: return 1 atom at the center of the box
+    atoms = Atoms()
+    atoms.append(Atom('Au', ( side_len * 0.5 , side_len * 0.5, side_len * 0.5 )))
+    state_voxels = atoms2voxels(atoms)
     return state_voxels
 
 def render():
