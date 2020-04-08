@@ -1,3 +1,5 @@
+.*swp
+
 Policy-Gradient-Methods/policygradients.egg-info/
 Policy-Gradient-Methods/common/__pycache__/
 Policy-Gradient-Methods/ddpg/__pycache__/

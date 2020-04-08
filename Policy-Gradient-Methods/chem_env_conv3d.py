@@ -7,7 +7,7 @@ seed = 1234
 random.seed(seed)
 np.random.seed(seed)
 
-stt_sz = 6
+stt_sz = 50
 
 observation_space = Box(low=np.array([-1]*stt_sz), high=np.array([1]*stt_sz), dtype=np.float32) 
 action_space = Box(low=np.array([-1]*3), high=np.array([1]*3), dtype=np.float32)
@@ -30,7 +30,7 @@ def reset():
         [-1]*stt_sz), high=np.array([1]*stt_sz),
         dtype=np.float32)  # don't care about observation_space low and high
     
-    return np.random.rand(stt_sz)
+    return np.random.rand(1, stt_sz, stt_sz, stt_sz)
 
 def render():
     pass
@@ -39,5 +39,5 @@ def step(action):
     done = True
     msg = 'test ok...'
     reward = random.random()
-    print(action)
-    return np.random.rand(stt_sz), reward, done, msg
+    # print(action)
+    return np.random.rand(1, stt_sz, stt_sz, stt_sz), reward, done, msg
