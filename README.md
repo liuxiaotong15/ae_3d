@@ -1,6 +1,8 @@
 # ae_3d
 try to make an autoencoder from 3d structure to 3d structure using conv3d
 
+pip install torch gym h5py torchvision
+
 some ref url:
 
 1. autoencoder: https://blog.csdn.net/yuyangyg/article/details/80054121
