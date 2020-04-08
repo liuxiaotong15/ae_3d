@@ -25,19 +25,30 @@ std_ans_morse_clst = \
     -331.588748, -336.121753, -341.266253, -346.610834, -351.472365, -356.372708, -361.727086, -367.0722648, -372.832290, -378.333471, #71-80
 ]
 
+state_voxels = np.zeros((1, stt_sz, stt_sz, stt_sz))
+
+def atoms2voxels(atoms):
+    # 50*50*50 voxel returned
+    pass
+
 def reset():
+    global state_voxels
     observation_space = Box(low=np.array(
         [-1]*stt_sz), high=np.array([1]*stt_sz),
         dtype=np.float32)  # don't care about observation_space low and high
-    
-    return np.random.rand(1, stt_sz, stt_sz, stt_sz)
+    # TODO: return 1 atom at the center of the box
+    return state_voxels
 
 def render():
     pass
 
 def step(action):
+    global state_voxels
+    # TODO: 1. find the xyz position
+    # TODO: 2. add new atom to state
+    # TODO: 3. calculate the reward of the action
     done = True
     msg = 'test ok...'
     reward = random.random()
     # print(action)
-    return np.random.rand(1, stt_sz, stt_sz, stt_sz), reward, done, msg
+    return state_voxels, reward, done, msg
