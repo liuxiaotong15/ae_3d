@@ -3,8 +3,8 @@ import torch.optim as optim
 import torch.multiprocessing as mp  
 import gym
 
-from models import TwoHeadNetwork, ValueNetwork, PolicyNetwork
-from worker import Worker, DecoupledWorker
+from a3c.models import TwoHeadNetwork, ValueNetwork, PolicyNetwork
+from a3c.worker import Worker, DecoupledWorker
 
 
 class A3CAgent:

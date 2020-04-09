@@ -3,7 +3,7 @@ import torch.nn.functional as F
 import torch.multiprocessing as mp
 from torch.distributions import Categorical
 
-from models import TwoHeadNetwork, ValueNetwork, PolicyNetwork
+from a3c.models import TwoHeadNetwork, ValueNetwork, PolicyNetwork
 
 
 class Worker(mp.Process):
