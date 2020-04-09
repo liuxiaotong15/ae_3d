@@ -20,7 +20,7 @@ actor_lr = 1e-3
 agent = TD3Agent(env, gamma, tau, buffer_maxlen, delay_step, noise_std, bound, critic_lr, actor_lr)
 
 # define training parameters
-max_episodes = 100
+max_episodes = 100000
 max_steps = 500
 batch_size = 32
 

@@ -6,7 +6,7 @@ from ddpg.ddpg import DDPGAgent
 import chem_env_conv3d as env
 # env = gym.make("Pendulum-v0")
 
-max_episodes = 100
+max_episodes = 100000
 max_steps = 500
 batch_size = 32
 
