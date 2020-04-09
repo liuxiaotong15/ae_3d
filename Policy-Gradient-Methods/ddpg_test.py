@@ -3,7 +3,8 @@ import gym
 from common.utils import mini_batch_train
 from ddpg.ddpg import DDPGAgent
 
-env = gym.make("Pendulum-v0")
+import chem_env_conv3d as env
+# env = gym.make("Pendulum-v0")
 
 max_episodes = 100
 max_steps = 500
