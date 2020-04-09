@@ -82,14 +82,17 @@ def step(action):
     # print(result)
     x, y, z = result[1][0]/voxel_side_cnt, result[2][0]/voxel_side_cnt, result[3][0]/voxel_side_cnt
     # print(x, y, z)
+    morse_calc = MorsePotential()
+    state_atoms.set_calculator(morse_calc)
+    orig_engy = state_atoms.get_potential_energy()
     # DONE: 2. add new atom to state
     state_atoms.append(Atom('Au', ( side_len * x, side_len * y, side_len * z )))
     # print('state atoms count: ', len(state_atoms))
     state_voxels = atoms2voxels(state_atoms)
     # DONE: 3. calculate the reward of the action
-    morse_calc = MorsePotential()
     state_atoms.set_calculator(morse_calc)
-    reward = -1 * state_atoms.get_potential_energy()
+    next_engy = state_atoms.get_potential_energy()
+    reward = orig_engy - next_engy
     reward = max(0, reward)
     done = False
     if len(state_atoms) == 10:
