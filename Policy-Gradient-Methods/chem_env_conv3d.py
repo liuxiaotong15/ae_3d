@@ -90,9 +90,9 @@ def step(action):
     morse_calc = MorsePotential()
     state_atoms.set_calculator(morse_calc)
     reward = -1 * state_atoms.get_potential_energy()
-
+    reward = max(0, reward)
     done = False
-    if len(state_atoms) == 20:
+    if len(state_atoms) == 10:
         done = True
     msg = 'test ok...'
     # reward = random.random()
