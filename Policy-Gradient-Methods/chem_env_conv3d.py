@@ -40,6 +40,7 @@ std_ans_morse_clst = \
 ]
 
 state_voxels = np.zeros((1, stt_sz, stt_sz, stt_sz))
+state_atoms = Atoms()
 voxel_side_cnt = 50
 side_len = 5
 
@@ -58,26 +59,42 @@ def atoms2voxels(at):
     return volume
 
 def reset():
-    global state_voxels
+    global state_voxels, state_atoms
+    state_atoms = Atoms()
     observation_space = Box(low=np.array(
         [-1]*stt_sz), high=np.array([1]*stt_sz),
         dtype=np.float32)  # don't care about observation_space low and high
     # DONE: return 1 atom at the center of the box
-    atoms = Atoms()
-    atoms.append(Atom('Au', ( side_len * 0.5 , side_len * 0.5, side_len * 0.5 )))
-    state_voxels = atoms2voxels(atoms)
+    state_atoms.append(Atom('Au', ( side_len * 0.5 , side_len * 0.5, side_len * 0.5 )))
+    state_voxels = atoms2voxels(state_atoms)
     return state_voxels
 
 def render():
     pass
 
 def step(action):
-    global state_voxels
+    global state_voxel, state_atoms
     # TODO: 1. find the xyz position
-    # TODO: 2. add new atom to state
-    # TODO: 3. calculate the reward of the action
-    done = True
+    # print(action.shape, np.amax(action), np.sum(action))
+    result = np.where(action == np.amax(action))
+    # print(len(result))
+    # print(result[0].shape)
+    # print(result)
+    x, y, z = result[1][0]/voxel_side_cnt, result[2][0]/voxel_side_cnt, result[3][0]/voxel_side_cnt
+    # print(x, y, z)
+    # DONE: 2. add new atom to state
+    state_atoms.append(Atom('Au', ( side_len * x, side_len * y, side_len * z )))
+    # print('state atoms count: ', len(state_atoms))
+    state_voxels = atoms2voxels(state_atoms)
+    # DONE: 3. calculate the reward of the action
+    morse_calc = MorsePotential()
+    state_atoms.set_calculator(morse_calc)
+    reward = -1 * state_atoms.get_potential_energy()
+
+    done = False
+    if len(state_atoms) == 5:
+        done = True
     msg = 'test ok...'
-    reward = random.random()
+    # reward = random.random()
     # print(action)
     return state_voxels, reward, done, msg

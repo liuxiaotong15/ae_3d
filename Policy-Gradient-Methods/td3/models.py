@@ -3,6 +3,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.autograd as autograd
 
+seed = 1234
+torch.manual_seed(seed)
 
 class Critic(nn.Module):
 
@@ -61,7 +63,10 @@ class Actor(nn.Module):
         x = F.relu(self.conv3d1(obs))
         x = self.conv3d2(x)
         x = F.relu(self.conv3dT1(x))
-        x = F.relu(self.conv3dT2(x))
+        x = self.conv3dT2(x)
+        # softmax of all elements
+        x = x.view(-1).softmax(0).view(*x.shape)
+        # x = F.relu(self.conv3dT2(x))
         # x = F.relu(self.linear1(obs))
         # x = F.relu(self.linear2(x))
         # x = torch.tanh(self.linear3(x))
