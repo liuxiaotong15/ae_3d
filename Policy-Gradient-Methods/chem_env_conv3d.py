@@ -92,7 +92,7 @@ def step(action):
     reward = -1 * state_atoms.get_potential_energy()
 
     done = False
-    if len(state_atoms) == 5:
+    if len(state_atoms) == 20:
         done = True
     msg = 'test ok...'
     # reward = random.random()
