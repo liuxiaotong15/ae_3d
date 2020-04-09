@@ -110,7 +110,7 @@ class OUNoise(object):
         self.max_sigma    = max_sigma
         self.min_sigma    = min_sigma
         self.decay_period = decay_period
-        self.action_dim   = action_space.shape[0]
+        self.action_dim   = action_space.shape# [0] xiaotong
         self.low          = action_space.low
         self.high         = action_space.high
         self.reset()
@@ -120,7 +120,8 @@ class OUNoise(object):
         
     def evolve_state(self):
         x  = self.state
-        dx = self.theta * (self.mu - x) + self.sigma * np.random.randn(self.action_dim)
+        # dx = self.theta * (self.mu - x) + self.sigma * np.random.randn(self.action_dim)
+        dx = self.theta * (self.mu - x) + self.sigma * np.random.standard_normal(self.action_dim) # xiaotong
         self.state = x + dx
         return self.state
     
