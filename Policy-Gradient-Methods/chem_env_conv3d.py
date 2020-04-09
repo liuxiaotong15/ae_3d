@@ -22,9 +22,10 @@ random.seed(seed)
 np.random.seed(seed)
 
 stt_sz = 50
+max_atoms_count = 10
 
-observation_space = Box(low=np.array([-1]*stt_sz), high=np.array([1]*stt_sz), dtype=np.float32) 
-action_space = Box(low=np.array([-1]*3), high=np.array([1]*3), dtype=np.float32)
+observation_space = Box(low=np.zeros((1, stt_sz, stt_sz, stt_sz)), high=np.zeros((1, stt_sz, stt_sz, stt_sz)) + max_atoms_count, dtype=np.float32) 
+action_space = Box(low=np.zeros((1, stt_sz, stt_sz, stt_sz)), high=np.ones((1, stt_sz, stt_sz, stt_sz)), dtype=np.float32)
 
 # The answer of morse cluster: doye.chem.ox.ac.uk/jon/structures/Morse/tables.html
 global_min_energy = [0] * 80
@@ -61,9 +62,7 @@ def atoms2voxels(at):
 def reset():
     global state_voxels, state_atoms
     state_atoms = Atoms()
-    observation_space = Box(low=np.array(
-        [-1]*stt_sz), high=np.array([1]*stt_sz),
-        dtype=np.float32)  # don't care about observation_space low and high
+    observation_space = Box(low=np.zeros((1, stt_sz, stt_sz, stt_sz)), high=np.zeros((1, stt_sz, stt_sz, stt_sz)) + max_atoms_count, dtype=np.float32) 
     # DONE: return 1 atom at the center of the box
     state_atoms.append(Atom('Au', ( side_len * 0.5 , side_len * 0.5, side_len * 0.5 )))
     state_voxels = atoms2voxels(state_atoms)
@@ -75,19 +74,15 @@ def render():
 def step(action):
     global state_voxel, state_atoms
     # TODO: 1. find the xyz position
-    # print(action.shape, np.amax(action), np.sum(action))
     result = np.where(action == np.amax(action))
-    # print(len(result))
-    # print(result[0].shape)
-    # print(result)
+    
     x, y, z = result[1][0]/voxel_side_cnt, result[2][0]/voxel_side_cnt, result[3][0]/voxel_side_cnt
-    # print(x, y, z)
+    
     morse_calc = MorsePotential()
     state_atoms.set_calculator(morse_calc)
     orig_engy = state_atoms.get_potential_energy()
     # DONE: 2. add new atom to state
     state_atoms.append(Atom('Au', ( side_len * x, side_len * y, side_len * z )))
-    # print('state atoms count: ', len(state_atoms))
     state_voxels = atoms2voxels(state_atoms)
     # DONE: 3. calculate the reward of the action
     state_atoms.set_calculator(morse_calc)
@@ -95,9 +90,7 @@ def step(action):
     reward = orig_engy - next_engy
     reward = max(0, reward)
     done = False
-    if len(state_atoms) == 10:
+    if len(state_atoms) == max_atoms_count:
         done = True
     msg = 'test ok...'
-    # reward = random.random()
-    # print(action)
     return state_voxels, reward, done, msg
