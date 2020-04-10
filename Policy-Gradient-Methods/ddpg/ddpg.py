@@ -45,7 +45,7 @@ class DDPGAgent:
         action = self.actor.forward(state)
         action = action.squeeze(0).cpu().detach().numpy()
 
-        action = self.noise.get_action(action) # add by xiaotong 2020 0409
+        action = self.noise.get_action(action, len(self.replay_buffer)) # add by xiaotong 2020 0409
         return action
     
     def update(self, batch_size):
