@@ -29,12 +29,7 @@ class Critic(nn.Module):
         x = F.relu(self.conv3d2(x))
         x = torch.flatten(x, start_dim=1)
         qval = self.linear(x)
-        # x = F.relu(self.linear1(x))
-        # xa_cat = torch.cat([x,a], 1)
-        # xa = F.relu(self.linear2(xa_cat))
-        # xa = F.relu(self.linear3(xa))
-        # qval = self.linear4(xa)
-
+      
         return qval
 
 class Actor(nn.Module):
@@ -53,11 +48,7 @@ class Actor(nn.Module):
         # 4, 25, 25, 25
         self.conv3dT2 = nn.ConvTranspose3d(4, 1, 2, stride=2, padding=0)
         # 1, 50, 50, 50
-        # TODO: maybe maxpool here, not in critic network
-        # self.linear1 = nn.Linear(self.obs_dim, 512)
-        # self.linear2 = nn.Linear(512, 128)
-        # self.linear3 = nn.Linear(128, self.action_dim)
-
+       
     def forward(self, obs):
         # print(obs.shape)
         x = F.relu(self.conv3d1(obs))
@@ -66,8 +57,5 @@ class Actor(nn.Module):
         x = self.conv3dT2(x)
         # softmax of all elements
         x = x.view(-1).softmax(0).view(*x.shape)
-        # x = F.relu(self.conv3dT2(x))
-        # x = F.relu(self.linear1(obs))
-        # x = F.relu(self.linear2(x))
-        # x = torch.tanh(self.linear3(x))
+        
         return x

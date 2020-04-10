@@ -103,7 +103,7 @@ class FactorizedNoisyLinear(nn.Module):
 # Ornstein-Ulhenbeck Noise
 # Taken from #https://github.com/vitchyr/rlkit/blob/master/rlkit/exploration_strategies/ou_strategy.py
 class OUNoise(object):
-    def __init__(self, action_space, mu=0.0, theta=0.15, max_sigma=0.3, min_sigma=0.3, decay_period=100000):
+    def __init__(self, action_space, mu=0.0, theta=0.15, max_sigma=0.3, min_sigma=0.3, decay_period=10000):
         self.mu           = mu
         self.theta        = theta
         self.sigma        = max_sigma

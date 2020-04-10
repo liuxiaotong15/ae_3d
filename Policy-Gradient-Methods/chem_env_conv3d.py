@@ -27,7 +27,6 @@ max_atoms_count = 10
 observation_space = Box(low=np.zeros((1, stt_sz, stt_sz, stt_sz)), high=np.zeros((1, stt_sz, stt_sz, stt_sz)) + max_atoms_count, dtype=np.float32) 
 action_space = Box(low=np.zeros((1, stt_sz, stt_sz, stt_sz)), high=np.ones((1, stt_sz, stt_sz, stt_sz)), dtype=np.float32)
 
-# The answer of morse cluster: doye.chem.ox.ac.uk/jon/structures/Morse/tables.html
 global_min_energy = [0] * 80
 std_ans_morse_clst = \
     [0, -1, -3, -6,  -9.044930, -12.487810, -16.207580, -19.327420, -23.417190, -27.473283, # 1-10

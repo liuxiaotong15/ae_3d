@@ -8,13 +8,13 @@ import chem_env_conv3d as env
 
 max_episodes = 100000
 max_steps = 500
-batch_size = 32
+batch_size = 64
 
 gamma = 0.99
 tau = 1e-2
 buffer_maxlen = 100000
-critic_lr = 1e-3
-actor_lr = 1e-3
+critic_lr = 1e-4
+actor_lr = 1e-4
 
 agent = DDPGAgent(env, gamma, tau, buffer_maxlen, critic_lr, actor_lr)
 episode_rewards = mini_batch_train(env, agent, max_episodes, max_steps, batch_size)
