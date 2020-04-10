@@ -20,3 +20,5 @@ and after run ok of the ae, I continue the work to DRL with conv3d, some ref url
 Algorithms from the Q learning family will be moved to https://github.com/cyoon1729/deep-Q-networks.
 
 Algorithms from the PG family will be moved https://github.com/cyoon1729/Policy-Gradient-Methods. cause my output is continurous, so I develope based on this repo.
+
+3. A3C from this repo: https://github.com/MorvanZhou/pytorch-A3C
