@@ -17,5 +17,5 @@ critic_lr = 1e-4
 actor_lr = 1e-4
 
 agent = DDPGAgent(env, gamma, tau, buffer_maxlen, critic_lr, actor_lr)
-episode_rewards = mini_batch_train(env, agent, max_episodes, max_steps, batch_size)
-# episode_rewards = mini_batch_train_xiaotong(env, agent, max_episodes, max_steps, batch_size)
+# episode_rewards = mini_batch_train(env, agent, max_episodes, max_steps, batch_size)
+episode_rewards = mini_batch_train_xiaotong(env, agent, max_episodes, max_steps, batch_size)
