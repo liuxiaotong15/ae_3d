@@ -86,9 +86,10 @@ def mini_batch_train_xiaotong(env, agent, max_episodes, max_steps, batch_size):
                 agent.replay_buffer.push(state, action, reward, next_state, done)
 
                 if len(agent.replay_buffer) > batch_size:
+                    agent.update(batch_size)    
     pool.close()
     pool.join()
-               agent.update(batch_size)   
+
     return episode_rewards
 
 def mini_batch_train_frames(env, agent, max_frames, batch_size):
