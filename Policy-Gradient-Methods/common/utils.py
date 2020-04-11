@@ -4,6 +4,7 @@ import gym
 import torch
 import multiprocessing
 import random
+import copy
 
 cpus = 16
 g_env = None
@@ -55,7 +56,7 @@ def mul_thd_func(seed):
         env.render()
         action = agent.get_action(state)
         next_state, reward, done, _ = env.step(action)
-        ret.append((state, action, reward, next_state, done))
+        ret.append((copy.deepcopy(state), action, reward, copy.deepcopy(next_state), done))
         state = next_state
         episode_reward += reward
         if done or step == max_steps-1:
@@ -76,19 +77,18 @@ def mini_batch_train_xiaotong(env, agent, max_episodes, max_steps, batch_size):
     g_batch_size = batch_size
 
     for episode in range(max_episodes):
+        print('epi start: ', episode)
         pool = multiprocessing.Pool(cpus)
         ret_list = pool.map(mul_thd_func, range(episode*cpus, episode*cpus+cpus))
         pool.close()
         pool.join()
+        print('pool close')
         for ret in ret_list:
             for state, action, reward, next_state, done in ret:
                 agent.replay_buffer.push(state, action, reward, next_state, done)
 
                 if len(agent.replay_buffer) > batch_size:
                     agent.update(batch_size)   
-
-        
-
     return episode_rewards
 
 def mini_batch_train_frames(env, agent, max_frames, batch_size):
