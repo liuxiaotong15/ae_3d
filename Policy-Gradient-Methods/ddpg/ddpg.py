@@ -68,7 +68,7 @@ class DDPGAgent:
         self.critic_optimizer.zero_grad()
         q_loss.backward() 
         self.critic_optimizer.step()
-
+        print('c_loss: ', q_loss.item())
         # update actor
         policy_loss = -self.critic.forward(state_batch, self.actor.forward(state_batch)).mean()
         
@@ -76,6 +76,7 @@ class DDPGAgent:
         policy_loss.backward()
         self.actor_optimizer.step()
 
+        print('a_loss: ', policy_loss.item())
         # update target networks 
         for target_param, param in zip(self.actor_target.parameters(), self.actor.parameters()):
             target_param.data.copy_(param.data * self.tau + target_param.data * (1.0 - self.tau))
