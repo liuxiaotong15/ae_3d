@@ -1,6 +1,6 @@
 import gym
 
-from common.utils import mini_batch_train_xiaotong
+from common.utils import mini_batch_train_xiaotong, mini_batch_train
 from ddpg.ddpg import DDPGAgent
 
 import chem_env_conv3d as env
