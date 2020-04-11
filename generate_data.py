@@ -69,7 +69,8 @@ def main():
     cnt = 5e3
     dataset = pool.map(multi_thd_func, range(int(cnt)))
     save_atom_enregy_h5(dataset)
-
+    pool.close()
+    pool.join()
 # write to HDF5
 '''
 idx = 0
