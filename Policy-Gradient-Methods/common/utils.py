@@ -70,21 +70,22 @@ def mul_thd_func(seed):
 def mini_batch_train_xiaotong(env, agent, max_episodes, max_steps, batch_size):
     global g_env, g_agent, g_max_episodes, g_batch_size, g_max_steps, cpus
     # episode_rewards = []
-    
+    g_env = env
+    g_agent = agent
+    g_max_episodes = max_episodes
+    g_max_steps = max_steps
+    g_batch_size = batch_size
+
     pool = multiprocessing.Pool(cpus)
     for episode in range(max_episodes):
-        g_env = env
-        g_agent = agent
-        g_max_episodes = max_episodes
-        g_max_steps = max_steps
-        g_batch_size = batch_size
         ret_list = pool.map(mul_thd_func, range(episode*cpus, episode*cpus+cpus))
         for ret in ret_list:
             for state, action, reward, next_state, done in ret:
                 agent.replay_buffer.push(state, action, reward, next_state, done)
-                print('cur len(replay) is: ', len(agent.replay_buffer))
+                # print('cur len(replay) is: ', len(agent.replay_buffer))
                 if len(agent.replay_buffer) > batch_size:
-                    agent.update(batch_size)    
+                    agent.update(batch_size)
+                g_agent = agent
     pool.close()
     pool.join()
 
