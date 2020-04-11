@@ -78,11 +78,11 @@ def mini_batch_train_xiaotong(env, agent, max_episodes, max_steps, batch_size):
     g_batch_size = batch_size
 
     manager = multiprocessing.Manager()
-    return_dict = manager.dict()
     for episode in range(max_episodes):
         # pool = multiprocessing.Pool(cpus)
         # ret_list = pool.map(mul_thd_func, range(episode*cpus, episode*cpus+cpus))
         p_lst = []
+        return_dict = manager.dict()
         for i in range(episode*cpus, episode*cpus+cpus):
             p1 = multiprocessing.Process(target=mul_thd_func, args=(i, return_dict))
             p1.start()
