@@ -78,9 +78,7 @@ def mini_batch_train_xiaotong(env, agent, max_episodes, max_steps, batch_size):
 
     pool = multiprocessing.Pool(cpus)
     for episode in range(max_episodes):
-        print('epi start: ', episode)
         ret_list = pool.map(mul_thd_func, range(episode*cpus, episode*cpus+cpus))
-        print('pool close')
         for ret in ret_list:
             for state, action, reward, next_state, done in ret:
                 agent.replay_buffer.push(state, action, reward, next_state, done)
