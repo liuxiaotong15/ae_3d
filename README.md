@@ -22,3 +22,11 @@ Algorithms from the Q learning family will be moved to https://github.com/cyoon1
 Algorithms from the PG family will be moved https://github.com/cyoon1729/Policy-Gradient-Methods. cause my output is continurous, so I develope based on this repo.
 
 3. A3C from this repo: https://github.com/MorvanZhou/pytorch-A3C
+
+I modify the 'pendulum' of gym, so make a symbol link: 
+
+cd ../ae_venv/lib/python3.7/site-packages/gym/envs/classic_control
+
+ln -s ~/code/ae_3d/pytorch-A3C/pendulum.py pendulum.py
+
+and if want to re-run the real 'pendulum', we need to move it back or make a symbol link to the real file.
