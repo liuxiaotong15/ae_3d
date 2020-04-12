@@ -29,4 +29,8 @@ cd ../ae_venv/lib/python3.7/site-packages/gym/envs/classic_control
 
 ln -s ~/code/ae_3d/pytorch-A3C/pendulum.py pendulum.py
 
+cd pytorch-A3C
+
+python xiaotong_continuous_A3C.py
+
 and if want to re-run the real 'pendulum', we need to move it back or make a symbol link to the real file.
