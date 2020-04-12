@@ -58,15 +58,10 @@ class Net(nn.Module):
     def choose_action(self, s):
         self.training = False
         mu, sigma, _ = self.forward(s)
-        # print(mu.shape, sigma.shape)
-        # print(mu.view(3, ).data, sigma.view(3, ).data)
         m = self.distribution(mu.view(3, ).data, sigma.view(3, ).data)
         return m.sample().numpy()
 
     def loss_func(self, s, a, v_t):
-        print(s.shape)
-        print(a.shape)
-        print(v_t.shape)
         self.train()
         mu, sigma, values = self.forward(s)
         td = v_t - values
@@ -109,11 +104,9 @@ class Worker(mp.Process):
                 buffer_s.append(s)
                 # buffer_r.append((r+8.1)/8.1)    # normalize
                 buffer_r.append(r)    # normalize
-                print(len(buffer_s), buffer_s[0].shape)
 
                 if total_step % UPDATE_GLOBAL_ITER == 0 or done:  # update global and assign to local net
                     # sync
-                    print(len(buffer_s), buffer_s[0].shape)
                     push_and_pull(self.opt, self.lnet, self.gnet, done, s_, buffer_s, buffer_a, buffer_r, GAMMA)
                     buffer_s, buffer_a, buffer_r = [], [], []
 
