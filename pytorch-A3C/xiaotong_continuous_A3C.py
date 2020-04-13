@@ -36,8 +36,10 @@ class Net(nn.Module):
         # 4, 25, 25, 25
         self.conv3d2 = nn.Conv3d(4, 2, 5, stride=5, padding=0)
 
-        self.mu = nn.Linear(250, a_dim)
-        self.sigma = nn.Linear(250, a_dim)
+        self.mu1 = nn.Linear(250, 100)
+        self.mu2 = nn.Linear(100, a_dim)
+        self.sigma1 = nn.Linear(250, 100)
+        self.sigma2 = nn.Linear(100, a_dim)
         # self.c1 = nn.Linear(s_dim, 100)
         self.v1 = nn.Linear(250, 100)
         self.v2 = nn.Linear(100, 1)
@@ -45,13 +47,15 @@ class Net(nn.Module):
         self.distribution = torch.distributions.Normal
 
     def forward(self, x):
-        x = F.relu6(self.conv3d1(x))
-        x = F.relu6(self.conv3d2(x))
+        x = F.relu(self.conv3d1(x))
+        x = F.relu(self.conv3d2(x))
         x = torch.flatten(x, start_dim=1)
-        # a1 = F.relu6(self.a1(x))
-        mu = HIGH_A * torch.sigmoid(self.mu(x))
-        sigma = F.softplus(self.sigma(x)) + 0.001      # avoid 0
-        x = F.relu6(self.v1(x))
+        # a1 = F.relu(self.a1(x))
+        mu = F.relu(self.mu1(x))
+        mu = HIGH_A * torch.sigmoid(self.mu2(mu))
+        sigma = F.relu(self.sigma1(x))
+        sigma = F.softplus(self.sigma2(sigma)) + 0.001      # avoid 0
+        x = F.relu(self.v1(x))
         values = self.v2(x)
         return mu, sigma, values
 
