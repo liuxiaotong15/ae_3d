@@ -31,24 +31,32 @@ class Net(nn.Module):
         super(Net, self).__init__()
         self.s_dim = s_dim
         self.a_dim = a_dim
-        # self.a1 = nn.Linear(s_dim, 200)
-        self.conv3d1 = nn.Conv3d(in_channels=1, out_channels=4, kernel_size=2, stride=2, padding=0)
+        # self.conv3d1 = nn.Conv3d(in_channels=1, out_channels=4, kernel_size=2, stride=2, padding=0)
         # 4, 25, 25, 25
-        self.conv3d2 = nn.Conv3d(4, 2, 5, stride=5, padding=0)
+        # self.conv3d2 = nn.Conv3d(4, 2, 5, stride=5, padding=0)
+        # self.fltt = 2*5*5*5
 
-        self.mu1 = nn.Linear(250, 100)
+        self.conv3d1 = nn.Conv3d(in_channels=1, out_channels=4, kernel_size=3, stride=1, padding=2)
+        # 4, 50, 50, 50
+        self.conv3d2 = nn.Conv3d(4, 2, 5, stride=5, padding=0)
+        # 2, 10, 10, 10
+        self.conv3d3 = nn.Conv3d(2, 2, 2, stride=2, padding=0)
+        self.fltt = 2*5*5*5
+
+        self.mu1 = nn.Linear(self.fltt, 100)
         self.mu2 = nn.Linear(100, a_dim)
-        self.sigma1 = nn.Linear(250, 100)
+        self.sigma1 = nn.Linear(self.fltt, 100)
         self.sigma2 = nn.Linear(100, a_dim)
         # self.c1 = nn.Linear(s_dim, 100)
-        self.v1 = nn.Linear(250, 100)
+        self.v1 = nn.Linear(self.fltt, 100)
         self.v2 = nn.Linear(100, 1)
-        set_init([self.conv3d1, self.conv3d2, self.mu1, self.mu2, self.sigma1, self.sigma2, self.v1, self.v2])
+        set_init([self.conv3d1, self.conv3d2, self.conv3d3, self.mu1, self.mu2, self.sigma1, self.sigma2, self.v1, self.v2])
         self.distribution = torch.distributions.Normal
 
     def forward(self, x):
         x = F.relu(self.conv3d1(x))
         x = F.relu(self.conv3d2(x))
+        x = F.relu(self.conv3d3(x))
         x = torch.flatten(x, start_dim=1)
         # a1 = F.relu(self.a1(x))
         mu = F.relu(self.mu1(x))
