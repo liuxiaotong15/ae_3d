@@ -82,9 +82,9 @@ class PendulumEnv(gym.Env):
         # low = np.zeros((250,))
         
         # high = np.array([1., 1., self.max_speed], dtype=np.float32)
-        high = np.ones((1, stt_sz, stt_sz, stt_sz)) * self.side_len
+        high = np.ones((1, stt_sz, stt_sz, stt_sz)) * self.max_atoms_count
         low = np.zeros((1, stt_sz, stt_sz, stt_sz))
-        self.action_space = spaces.Box(low=0,  high=self.side_len, shape=(3,), dtype=np.float32)
+        self.action_space = spaces.Box(low=0,  high=1 , shape=(3,), dtype=np.float32)
         self.observation_space = spaces.Box(low=low, high=high, dtype=np.float32)
 
         # self.seed()
