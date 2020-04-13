@@ -82,10 +82,15 @@ class Actor(nn.Module):
     def forward(self, obs):
         # print(obs.shape)
         x = F.relu(self.conv3d1(obs))
+        print(x.shape)
         x = F.relu(self.conv3d2(x))
+        print(x.shape)
         x = F.relu(self.conv3d3(x))
+        print(x.shape)
         x = F.relu(self.conv3dT1(x))
+        print(x.shape)
         x = self.conv3dT2(x)
+        print(x.shape)
         # x = self.conv3dT3(x)
         # softmax of all elements
         x = x.view(-1).softmax(0).view(*x.shape)
