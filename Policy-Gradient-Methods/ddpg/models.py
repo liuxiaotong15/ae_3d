@@ -68,11 +68,11 @@ class Actor(nn.Module):
         # 1, 50, 50, 50
 
         # test_3
-        self.conv3d1 = nn.Conv3d(in_channels=1, out_channels=4, kernel_size=7, stride=2, padding=5)
+        self.conv3d1 = nn.Conv3d(in_channels=1, out_channels=4, kernel_size=7, stride=2, padding=3)
         # 4, 25, 25, 25
-        self.conv3d2 = nn.Conv3d(4, 2, 7, stride=2, padding=6)
+        self.conv3d2 = nn.Conv3d(4, 2, 7, stride=2, padding=3)
         # 2, 13, 13, 13
-        self.conv3d3 = nn.Conv3d(2, 2, 3, stride=3, padding=4)
+        self.conv3d3 = nn.Conv3d(2, 2, 3, stride=3, padding=2)
         # 2, 5, 5, 5
         self.conv3dT1 = nn.ConvTranspose3d(2, 2, 2, stride=2)
         # 2, 10, 10, 10
