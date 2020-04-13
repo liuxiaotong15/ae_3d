@@ -36,11 +36,20 @@ class Net(nn.Module):
         # self.conv3d2 = nn.Conv3d(4, 2, 5, stride=5, padding=0)
         # self.fltt = 2*5*5*5
 
-        self.conv3d1 = nn.Conv3d(in_channels=1, out_channels=4, kernel_size=3, stride=1, padding=2)
-        # 4, 50, 50, 50
-        self.conv3d2 = nn.Conv3d(4, 2, 5, stride=5, padding=0)
-        # 2, 10, 10, 10
-        self.conv3d3 = nn.Conv3d(2, 2, 2, stride=2, padding=0)
+        # test_2
+        # self.conv3d1 = nn.Conv3d(in_channels=1, out_channels=4, kernel_size=3, stride=1, padding=2)
+        # # 4, 50, 50, 50
+        # self.conv3d2 = nn.Conv3d(4, 2, 5, stride=5, padding=0)
+        # # 2, 10, 10, 10
+        # self.conv3d3 = nn.Conv3d(2, 2, 2, stride=2, padding=0)
+
+        # test_3
+        self.conv3d1 = nn.Conv3d(in_channels=1, out_channels=4, kernel_size=7, stride=2, padding=3)
+        # 4, 25, 25, 25
+        self.conv3d2 = nn.Conv3d(4, 2, 7, stride=2, padding=3)
+        # 2, 13, 13, 13
+        self.conv3d3 = nn.Conv3d(2, 2, 3, stride=3, padding=2)
+
         self.fltt = 2*5*5*5
 
         self.mu1 = nn.Linear(self.fltt, 100)
