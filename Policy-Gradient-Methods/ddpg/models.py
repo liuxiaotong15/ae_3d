@@ -60,9 +60,9 @@ class Actor(nn.Module):
         self.conv3d3 = nn.Conv3d(2, 2, 2, stride=2, padding=0)
         self.conv3dT1 = nn.ConvTranspose3d(2, 2, 2, stride=2)
         # 2, 10, 10, 10
-        self.conv3dT2 = nn.ConvTranspose3d(2, 4, 5, stride=5)
+        self.conv3dT2 = nn.ConvTranspose3d(2, 1, 5, stride=5)
         # 4, 50, 50, 50 
-        self.conv3dT3 = nn.ConvTranspose3d(4, 1, 3, stride=1, padding=2)
+        # self.conv3dT3 = nn.ConvTranspose3d(4, 1, 3, stride=1, padding=2)
         # 1, 50, 50, 50
 
 
@@ -72,8 +72,8 @@ class Actor(nn.Module):
         x = F.relu(self.conv3d2(x))
         x = self.conv3d3(x)
         x = F.relu(self.conv3dT1(x))
-        x = F.relu(self.conv3dT2(x))
-        x = self.conv3dT3(x)
+        x = self.conv3dT2(x)
+        # x = self.conv3dT3(x)
         # softmax of all elements
         x = x.view(-1).softmax(0).view(*x.shape)
         
