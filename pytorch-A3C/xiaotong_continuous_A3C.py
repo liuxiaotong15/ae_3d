@@ -43,7 +43,7 @@ class Net(nn.Module):
         # self.c1 = nn.Linear(s_dim, 100)
         self.v1 = nn.Linear(250, 100)
         self.v2 = nn.Linear(100, 1)
-        set_init([self.conv3d1, self.conv3d2, self.mu, self.sigma, self.v1, self.v2])
+        set_init([self.conv3d1, self.conv3d2, self.mu1, self.mu2, self.sigma1, self.sigma2, self.v1, self.v2])
         self.distribution = torch.distributions.Normal
 
     def forward(self, x):
