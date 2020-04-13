@@ -18,13 +18,19 @@ class Critic(nn.Module):
         # self.conv3d1 = nn.Conv3d(in_channels=1, out_channels=4, kernel_size=2, stride=2, padding=0)
         # 4, 25, 25, 25
         # self.conv3d2 = nn.Conv3d(4, 2, 5, stride=5, padding=0)
-        
-        self.conv3d1 = nn.Conv3d(in_channels=1, out_channels=4, kernel_size=3, stride=1, padding=2)
-        # 4, 50, 50, 50
-        self.conv3d2 = nn.Conv3d(4, 2, 5, stride=5, padding=0)
-        # 2, 10, 10, 10
-        self.conv3d3 = nn.Conv3d(2, 2, 2, stride=2, padding=0)
-        
+        # test_2
+        # self.conv3d1 = nn.Conv3d(in_channels=1, out_channels=4, kernel_size=3, stride=1, padding=2)
+        # # 4, 50, 50, 50
+        # self.conv3d2 = nn.Conv3d(4, 2, 5, stride=5, padding=0)
+        # # 2, 10, 10, 10
+        # self.conv3d3 = nn.Conv3d(2, 2, 2, stride=2, padding=0)
+        # test_3
+        self.conv3d1 = nn.Conv3d(in_channels=1, out_channels=4, kernel_size=7, stride=2, padding=3)
+        # 4, 25, 25, 25
+        self.conv3d2 = nn.Conv3d(4, 2, 7, stride=2, padding=3)
+        # 2, 13, 13, 13
+        self.conv3d3 = nn.Conv3d(2, 2, 3, stride=3, padding=2)
+
         self.linear = nn.Linear(5 * 5 * 5 * 2, 1)
 
     def forward(self, x, a):
@@ -82,15 +88,15 @@ class Actor(nn.Module):
     def forward(self, obs):
         # print(obs.shape)
         x = F.relu(self.conv3d1(obs))
-        print(x.shape)
+        # print(x.shape)
         x = F.relu(self.conv3d2(x))
-        print(x.shape)
+        # print(x.shape)
         x = F.relu(self.conv3d3(x))
-        print(x.shape)
+        # print(x.shape)
         x = F.relu(self.conv3dT1(x))
-        print(x.shape)
+        # print(x.shape)
         x = self.conv3dT2(x)
-        print(x.shape)
+        # print(x.shape)
         # x = self.conv3dT3(x)
         # softmax of all elements
         x = x.view(-1).softmax(0).view(*x.shape)
