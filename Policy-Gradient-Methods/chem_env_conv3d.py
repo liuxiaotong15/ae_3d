@@ -74,6 +74,7 @@ def render():
 
 def step(action):
     global state_voxel, state_atoms
+    done = False
     # Done: 1. find the xyz position (max value with element around it modified to make the value continuous)
     result = np.where(action == np.amax(action))
     # find xyz in whole action
@@ -116,8 +117,9 @@ def step(action):
     state_atoms.set_calculator(morse_calc)
     next_engy = state_atoms.get_potential_energy()
     reward = orig_engy - next_engy
+    if reward < -100:
+            done = True
     reward = max(0, reward)
-    done = False
     if len(state_atoms) == max_atoms_count:
         done = True
     msg = 'test ok...'
