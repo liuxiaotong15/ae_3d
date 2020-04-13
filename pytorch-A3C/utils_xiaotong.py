@@ -3,9 +3,10 @@ Functions that use multiple times
 """
 
 from torch import nn
-import torch
+import torch, os
 import numpy as np
 
+commit_id = str(os.popen('git --no-pager log -1 --oneline').read()).split(' ', 1)[0]
 
 def v_wrap(np_array, dtype=np.float32):
     if np_array.dtype != dtype:
@@ -61,6 +62,7 @@ def record(global_ep, global_ep_r, ep_r, res_queue, name):
             global_ep_r.value = global_ep_r.value * 0.99 + ep_r * 0.01
     res_queue.put(global_ep_r.value)
     print(
+        commit_id,
         name,
         "Ep:", global_ep.value,
         "| Ep_r: %.10f" % global_ep_r.value,

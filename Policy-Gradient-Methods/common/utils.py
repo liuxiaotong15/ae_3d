@@ -5,6 +5,9 @@ import torch
 import multiprocessing
 import random
 import copy
+import os
+
+commit_id = str(os.popen('git --no-pager log -1 --oneline').read()).split(' ', 1)[0]
 
 cpus = 16
 g_env = None
@@ -32,7 +35,7 @@ def mini_batch_train(env, agent, max_episodes, max_steps, batch_size):
 
             if done or step == max_steps-1:
                 episode_rewards.append(episode_reward)
-                print("Episode " + str(episode) + ": " + str(episode_reward))
+                print(commit_id , " Episode " + str(episode) + ": " + str(episode_reward))
                 break
 
             state = next_state
