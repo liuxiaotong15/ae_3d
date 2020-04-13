@@ -96,6 +96,7 @@ class PendulumEnv(gym.Env):
         return [seed]
     
     def step(self, u):
+        done = False
         side_len = self.side_len
         x, y, z = u[0], u[1], u[2]
         # DONE: 2. add new atom to state
@@ -108,8 +109,9 @@ class PendulumEnv(gym.Env):
         self.state_atoms.set_calculator(morse_calc)
         next_engy = self.state_atoms.get_potential_energy()
         reward = orig_engy - next_engy
+        if reward < -100:
+            done = True
         reward = max(0, reward)
-        done = False
         if len(self.state_atoms) == self.max_atoms_count:
             done = True
         msg = 'test ok...'
