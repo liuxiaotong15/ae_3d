@@ -15,18 +15,23 @@ class Critic(nn.Module):
         self.action_dim = action_dim
 
         # 1, 50, 50, 50
-        self.conv3d1 = nn.Conv3d(in_channels=1, out_channels=4, kernel_size=2, stride=2, padding=0)
+        # self.conv3d1 = nn.Conv3d(in_channels=1, out_channels=4, kernel_size=2, stride=2, padding=0)
         # 4, 25, 25, 25
+        # self.conv3d2 = nn.Conv3d(4, 2, 5, stride=5, padding=0)
+        
+        self.conv3d1 = nn.Conv3d(in_channels=1, out_channels=4, kernel_size=3, stride=1, padding=2)
+        # 4, 50, 50, 50
         self.conv3d2 = nn.Conv3d(4, 2, 5, stride=5, padding=0)
-        # self.linear1 = nn.Linear(self.obs_dim, 1024)
-        # self.linear2 = nn.Linear(1024 + self.action_dim, 512)
-        # self.linear3 = nn.Linear(512, 300)
+        # 2, 10, 10, 10
+        self.conv3d3 = nn.Conv3d(2, 2, 2, stride=2, padding=0)
+        
         self.linear = nn.Linear(5 * 5 * 5 * 2, 1)
 
     def forward(self, x, a):
         # TODO: x = x + nn.MaxPool3d(a......) to set all small value of a to zero
         x = F.relu(self.conv3d1(x+a))
         x = F.relu(self.conv3d2(x))
+        x = F.relu(self.conv3d3(x))
         x = torch.flatten(x, start_dim=1)
         qval = self.linear(x)
       
@@ -41,20 +46,34 @@ class Actor(nn.Module):
         self.action_dim = action_dim
 
         # 1, 50, 50, 50
-        self.conv3d1 = nn.Conv3d(in_channels=1, out_channels=4, kernel_size=2, stride=2, padding=0)
+        # self.conv3d1 = nn.Conv3d(in_channels=1, out_channels=4, kernel_size=2, stride=2, padding=0)
         # 4, 25, 25, 25
-        self.conv3d2 = nn.Conv3d(4, 2, 5, stride=5, padding=0)
-        self.conv3dT1 = nn.ConvTranspose3d(2, 4, 5, stride=5)
+        # self.conv3d2 = nn.Conv3d(4, 2, 5, stride=5, padding=0)
+        # self.conv3dT1 = nn.ConvTranspose3d(2, 4, 5, stride=5)
         # 4, 25, 25, 25
-        self.conv3dT2 = nn.ConvTranspose3d(4, 1, 2, stride=2, padding=0)
+        # self.conv3dT2 = nn.ConvTranspose3d(4, 1, 2, stride=2, padding=0)
         # 1, 50, 50, 50
-       
+        self.conv3d1 = nn.Conv3d(in_channels=1, out_channels=4, kernel_size=3, stride=1, padding=2)
+        # 4, 50, 50, 50
+        self.conv3d2 = nn.Conv3d(4, 2, 5, stride=5, padding=0)
+        # 2, 10, 10, 10
+        self.conv3d3 = nn.Conv3d(2, 2, 2, stride=2, padding=0)
+        self.conv3dT1 = nn.ConvTranspose3d(2, 2, 2, stride=2)
+        # 2, 10, 10, 10
+        self.conv3dT2 = nn.ConvTranspose3d(2, 4, 5, stride=5)
+        # 4, 50, 50, 50 
+        self.conv3dT3 = nn.ConvTranspose3d(4, 1, 3, stride=1, padding=2)
+        # 1, 50, 50, 50
+
+
     def forward(self, obs):
         # print(obs.shape)
         x = F.relu(self.conv3d1(obs))
-        x = self.conv3d2(x)
+        x = F.relu(self.conv3d2(x))
+        x = self.conv3d3(x)
         x = F.relu(self.conv3dT1(x))
-        x = self.conv3dT2(x)
+        x = F.relu(self.conv3dT2(x))
+        x = self.conv3dT3(x)
         # softmax of all elements
         x = x.view(-1).softmax(0).view(*x.shape)
         
