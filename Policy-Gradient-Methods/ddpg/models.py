@@ -37,7 +37,8 @@ class Critic(nn.Module):
     def forward(self, x, a):
         # TODO: x = x + nn.MaxPool3d(a......) to set all small value of a to zero
         a = a.detach().numpy()
-        a = a/np.amax(a)
+        if np.amax(a) > 1e-5:
+            a = a/np.amax(a)
         stt_sz = a.shape[1]
         mask = np.zeros(a.shape, dtype=np.float32)
         result = np.where(a == np.amax(a))
