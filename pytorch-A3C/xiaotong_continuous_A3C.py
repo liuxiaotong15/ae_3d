@@ -64,10 +64,12 @@ class Net(nn.Module):
 
     def forward(self, x):
         x = F.relu(self.conv3d1(x))
+        x = F.max_pool3d(x, kernel_size=3, stride=1, padding=1)
         x = F.relu(self.conv3d2(x))
+        x = F.max_pool3d(x, kernel_size=3, stride=1, padding=1)
         x = F.relu(self.conv3d3(x))
+        x = F.max_pool3d(x, kernel_size=3, stride=1, padding=1)
         x = torch.flatten(x, start_dim=1)
-        # a1 = F.relu(self.a1(x))
         mu = F.relu(self.mu1(x))
         mu = HIGH_A * torch.sigmoid(self.mu2(mu))
         sigma = F.relu(self.sigma1(x))
@@ -149,7 +151,7 @@ if __name__ == "__main__":
 
     # parallel training
     # workers = [Worker(gnet, opt, global_ep, global_ep_r, res_queue, i) for i in range(mp.cpu_count()-2)]
-    workers = [Worker(gnet, opt, global_ep, global_ep_r, res_queue, i) for i in range(16)]
+    workers = [Worker(gnet, opt, global_ep, global_ep_r, res_queue, i) for i in range(24)]
     [w.start() for w in workers]
     res = []                    # record episode reward to plot
     while True:
