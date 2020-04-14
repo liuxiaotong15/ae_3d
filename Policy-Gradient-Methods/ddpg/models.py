@@ -38,15 +38,14 @@ class Critic(nn.Module):
         # TODO: x = x + nn.MaxPool3d(a......) to set all small value of a to zero
         stt_sz = a.shape[1]
         mask = np.zeros(a.shape)
-        action = a
-        result = np.where(action == np.amax(action))
+        result = np.where(a == np.amax(a))
         # find xyz in whole action
         x1, y1, z1 = 0, 0, 0
         # if have multi max, choose the max sum around it
         max_sub_arr_sum = -100
         for idx in range(0, len(result[1])):
             i, j, k = result[1][idx], result[2][idx], result[3][idx]
-            sub_arr = action[0, max(0, i-1):min(i+2, stt_sz), max(0, j-1):min(j+2, stt_sz), max(0, k-1):min(k+2, stt_sz)]
+            sub_arr = a[0, max(0, i-1):min(i+2, stt_sz), max(0, j-1):min(j+2, stt_sz), max(0, k-1):min(k+2, stt_sz)]
             if np.sum(sub_arr)/sub_arr.size > max_sub_arr_sum:
                 max_sub_arr_sum = np.sum(sub_arr)/sub_arr.size
                 x1, y1, z1 = i, j, k
@@ -55,7 +54,7 @@ class Critic(nn.Module):
                 for k in range(max(0, z-1),min(z+2, stt_sz)):
                     mask[0][i][j][k] = 1
 
-        x = F.relu(self.conv3d1(x+a*mask/np.amax(action)))
+        x = F.relu(self.conv3d1(x+a*mask/np.amax(a)))
         x = F.relu(self.conv3d2(x))
         x = F.relu(self.conv3d3(x))
         x = torch.flatten(x, start_dim=1)
