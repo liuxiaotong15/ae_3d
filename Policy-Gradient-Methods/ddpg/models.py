@@ -56,6 +56,7 @@ class Critic(nn.Module):
                     mask[0][i][j][k] = 1
 
         a = torch.from_numpy(a*mask/np.amax(a))
+        a.requires_grad_(True)
         x = F.relu(self.conv3d1(x+a))
         x = F.relu(self.conv3d2(x))
         x = F.relu(self.conv3d3(x))
