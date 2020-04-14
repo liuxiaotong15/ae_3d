@@ -36,9 +36,9 @@ class Critic(nn.Module):
 
     def forward(self, x, a):
         # TODO: x = x + nn.MaxPool3d(a......) to set all small value of a to zero
-        a = a.numpy()
+        a = a.detach().numpy()
         stt_sz = a.shape[1]
-        mask = np.zeros(a.shape)
+        mask = np.zeros(a.shape, dtype=np.float32)
         result = np.where(a == np.amax(a))
         # find xyz in whole action
         x1, y1, z1 = 0, 0, 0
@@ -56,7 +56,6 @@ class Critic(nn.Module):
                     mask[0][i][j][k] = 1
 
         a = torch.from_numpy(a*mask/np.amax(a))
-        a = torch.tensor(a, dtype=torch.float32)
         x = F.relu(self.conv3d1(x+a))
         x = F.relu(self.conv3d2(x))
         x = F.relu(self.conv3d3(x))
