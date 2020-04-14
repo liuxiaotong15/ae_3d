@@ -49,6 +49,8 @@ class Critic(nn.Module):
         for idx in range(0, len(result[1])):
             i, j, k = result[1][idx], result[2][idx], result[3][idx]
             sub_arr = a[0, max(0, i-1):min(i+2, stt_sz), max(0, j-1):min(j+2, stt_sz), max(0, k-1):min(k+2, stt_sz)]
+            if np.sum(sub_arr) < 1e-5 or sub_arr.size < 1e-5:
+                continue
             if np.sum(sub_arr)/sub_arr.size > max_sub_arr_sum:
                 max_sub_arr_sum = np.sum(sub_arr)/sub_arr.size
                 x1, y1, z1 = i, j, k
