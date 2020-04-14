@@ -50,9 +50,9 @@ class Critic(nn.Module):
             if np.sum(sub_arr)/sub_arr.size > max_sub_arr_sum:
                 max_sub_arr_sum = np.sum(sub_arr)/sub_arr.size
                 x1, y1, z1 = i, j, k
-        for i in range(max(0, x-1),min(x+2, stt_sz)):
-            for j in range(max(0, y-1),min(y+2, stt_sz)):
-                for k in range(max(0, z-1),min(z+2, stt_sz)):
+        for i in range(max(0, x1-1),min(x1+2, stt_sz)):
+            for j in range(max(0, y1-1),min(y1+2, stt_sz)):
+                for k in range(max(0, z1-1),min(z1+2, stt_sz)):
                     mask[0][i][j][k] = 1
 
         a = torch.from_numpy(a*mask/np.amax(a))
