@@ -8,7 +8,7 @@ import chem_env_conv3d as env
 
 max_episodes = 100000
 max_steps = 500
-batch_size = 32
+batch_size = 16
 
 gamma = 0.99
 tau = 1e-2
