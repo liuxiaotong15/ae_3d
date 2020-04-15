@@ -6,6 +6,12 @@ import numpy as np
 
 seed = 1234
 torch.manual_seed(seed)
+debug = True
+def print_msg(x):
+    if debug:
+        print(x)
+    else:
+        pass
 
 class Critic(nn.Module):
 
@@ -103,36 +109,42 @@ class Actor(nn.Module):
         # self.conv3dT3 = nn.ConvTranspose3d(4, 1, 3, stride=1, padding=2)
         # 1, 50, 50, 50
 
-        # test_3
-        self.conv3d1 = nn.Conv3d(in_channels=1, out_channels=4, kernel_size=7, stride=2, padding=3)
+        # # test_3
+        # self.conv3d1 = nn.Conv3d(in_channels=1, out_channels=4, kernel_size=7, stride=2, padding=3)
+        # # 4, 25, 25, 25
+        # self.conv3d2 = nn.Conv3d(4, 2, 7, stride=2, padding=3)
+        # # 2, 13, 13, 13
+        # self.conv3d3 = nn.Conv3d(2, 2, 3, stride=3, padding=2)
+        # # 2, 5, 5, 5
+        # self.conv3dT1 = nn.ConvTranspose3d(2, 2, 2, stride=2)
+        # # 2, 10, 10, 10
+        # self.conv3dT2 = nn.ConvTranspose3d(2, 1, 5, stride=5)
+        # # 1, 50, 50, 50
+        # test_4
+        self.conv3d1 = nn.Conv3d(in_channels=1, out_channels=4, kernel_size=9, stride=1, padding=4)
         # 4, 25, 25, 25
-        self.conv3d2 = nn.Conv3d(4, 2, 7, stride=2, padding=3)
+        self.conv3d2 = nn.Conv3d(4, 2, 7, stride=1, padding=3)
         # 2, 13, 13, 13
-        self.conv3d3 = nn.Conv3d(2, 2, 3, stride=3, padding=2)
-        # 2, 5, 5, 5
-        self.conv3dT1 = nn.ConvTranspose3d(2, 2, 2, stride=2)
-        # 2, 10, 10, 10
-        self.conv3dT2 = nn.ConvTranspose3d(2, 1, 5, stride=5)
-        # 1, 50, 50, 50
+        self.conv3d3 = nn.Conv3d(2, 1, 3, stride=1, padding=1)
 
     def forward(self, obs):
-        # print(obs.shape)
+        print_msg(obs.shape)
         x = F.relu(self.conv3d1(obs))
-        # print(x.shape)
-        x = F.max_pool3d(x, kernel_size=3, stride=1, padding=1)
-        # print(x.shape)
+        print_msg(x.shape)
+        # x = F.max_pool3d(x, kernel_size=3, stride=1, padding=1)
+        # print_msg(x.shape)
         x = F.relu(self.conv3d2(x))
-        # print(x.shape)
-        x = F.max_pool3d(x, kernel_size=3, stride=1, padding=1)
-        # print(x.shape)
+        print_msg(x.shape)
+        # x = F.max_pool3d(x, kernel_size=3, stride=1, padding=1)
+        # print_msg(x.shape)
         x = F.relu(self.conv3d3(x))
-        # print(x.shape)
-        x = F.max_pool3d(x, kernel_size=3, stride=1, padding=1)
-        # print(x.shape)
-        x = F.relu(self.conv3dT1(x))
-        # print(x.shape)
-        x = self.conv3dT2(x)
-        # print(x.shape)
+        print_msg(x.shape)
+        # x = F.max_pool3d(x, kernel_size=3, stride=1, padding=1)
+        # print_msg(x.shape)
+        # x = F.relu(self.conv3dT1(x))
+        # print_msg(x.shape)
+        # x = self.conv3dT2(x)
+        # print_msg(x.shape)
         # x = self.conv3dT3(x)
         # softmax of all elements
         x = x.view(-1).softmax(0).view(*x.shape)
