@@ -30,7 +30,7 @@ def mini_batch_train(env, agent, max_episodes, max_steps, batch_size):
             agent.replay_buffer.push(state, action, reward, next_state, done)
             episode_reward += reward
 
-            if len(agent.replay_buffer) > batch_size:
+            if len(agent.replay_buffer) > batch_size * 100:
                 agent.update(batch_size)   
 
             if done or step == max_steps-1:
