@@ -6,7 +6,7 @@ import numpy as np
 
 seed = 1234
 torch.manual_seed(seed)
-debug = True
+debug = False
 def print_msg(x):
     if debug:
         print(x)
