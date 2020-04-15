@@ -40,7 +40,7 @@ class Critic(nn.Module):
         if np.amax(a) > 1e-5:
             a = a/np.amax(a)
         stt_sz = a.shape[1]
-        mask = np.zeros(a.shape, dtype=np.float32)
+        # mask = np.zeros(a.shape, dtype=np.float32)
         result = np.where(a == np.amax(a))
         # find xyz in whole action
         x1, y1, z1 = 0, 0, 0
@@ -57,11 +57,13 @@ class Critic(nn.Module):
         for i in range(max(0, x1-1),min(x1+2, stt_sz)):
             for j in range(max(0, y1-1),min(y1+2, stt_sz)):
                 for k in range(max(0, z1-1),min(z1+2, stt_sz)):
-                    mask[0][i][j][k] = a[0][i][j][k]
+                    x[0][i][j][k] = a[0][i][j][k]
+                    # mask[0][i][j][k] = a[0][i][j][k]
 
-        a = torch.from_numpy(mask)
-        a.requires_grad_(True)
-        x = F.relu(self.conv3d1(x+a))
+        # a = torch.from_numpy(mask)
+        # a.requires_grad_(True)
+        # x = F.relu(self.conv3d1(x+a))
+        x = F.relu(self.conv3d1(x))
         x = F.relu(self.conv3d2(x))
         x = F.relu(self.conv3d3(x))
         x = torch.flatten(x, start_dim=1)
