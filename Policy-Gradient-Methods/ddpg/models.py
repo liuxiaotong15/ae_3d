@@ -57,7 +57,7 @@ class Critic(nn.Module):
         for i in range(max(0, x1-1),min(x1+2, stt_sz)):
             for j in range(max(0, y1-1),min(y1+2, stt_sz)):
                 for k in range(max(0, z1-1),min(z1+2, stt_sz)):
-                    x[0][i][j][k] += a[0][i][j][k]
+                    x[0][i][j][k] += float(a[0][i][j][k])
                     # mask[0][i][j][k] = a[0][i][j][k]
 
         # a = torch.from_numpy(mask)
