@@ -57,9 +57,9 @@ class Critic(nn.Module):
         for i in range(max(0, x1-1),min(x1+2, stt_sz)):
             for j in range(max(0, y1-1),min(y1+2, stt_sz)):
                 for k in range(max(0, z1-1),min(z1+2, stt_sz)):
-                    mask[0][i][j][k] = 1
+                    mask[0][i][j][k] = a[0][i][j][k]
 
-        a = torch.from_numpy(a*mask)
+        a = torch.from_numpy(mask)
         a.requires_grad_(True)
         x = F.relu(self.conv3d1(x+a))
         x = F.relu(self.conv3d2(x))
