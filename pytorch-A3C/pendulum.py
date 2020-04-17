@@ -135,7 +135,7 @@ class PendulumEnv(gym.Env):
         z = z - (z1 - z2)
         
         x, y, z = x/voxel_side_cnt, y/voxel_side_cnt, z/voxel_side_cnt
-        print(x, y, z)
+        # print(x, y, z)
         # x, y, z = u[0], u[1], u[2]
         # DONE: 2. add new atom to state
         morse_calc = MorsePotential()
