@@ -73,10 +73,11 @@ class Net(nn.Module):
 
     def forward(self, x):
         x = F.relu(self.conv3d1(x))
-        # x = F.max_pool3d(x, kernel_size=3, stride=1, padding=1)
+        x = F.max_pool3d(x, kernel_size=3, stride=1, padding=1)
         x = F.relu(self.conv3d2(x))
-        # x = F.max_pool3d(x, kernel_size=3, stride=1, padding=1)
-        mu = HIGH_A * torch.sigmoid(self.conv3d_3mu(x))
+        x = F.max_pool3d(x, kernel_size=3, stride=1, padding=1)
+        # mu = HIGH_A * torch.sigmoid(self.conv3d_3mu(x))
+        mu = self.conv3d_3mu(x)
         mu = mu.view(-1).softmax(0).view(*mu.shape)
         sigma = F.softplus(self.conv3d_3sigma(x))
         # x = F.max_pool3d(x, kernel_size=3, stride=1, padding=1)
