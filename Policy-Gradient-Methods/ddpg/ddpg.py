@@ -34,8 +34,8 @@ class DDPGAgent:
             target_param.data.copy_(param.data)
         
         # optimizers
-        self.critic_optimizer = optim.Adam(self.critic.parameters(), lr=critic_learning_rate)
-        self.actor_optimizer  = optim.Adam(self.actor.parameters(), lr=actor_learning_rate)
+        self.critic_optimizer = optim.Adam(self.critic.parameters(), lr=critic_learning_rate, weight_decay=0.001)
+        self.actor_optimizer  = optim.Adam(self.actor.parameters(), lr=actor_learning_rate, weight_decay=0.001)
     
         self.replay_buffer = BasicBuffer(buffer_maxlen)        
         self.noise = OUNoise(self.env.action_space)
