@@ -84,12 +84,10 @@ class PendulumEnv(gym.Env):
         # low = np.zeros((250,))
         
         # high = np.array([1., 1., self.max_speed], dtype=np.float32)
-        high_o = np.ones((1, stt_sz, stt_sz, stt_sz)) * self.max_atoms_count
-        high_a = np.ones((1, stt_sz, stt_sz, stt_sz))
+        high = np.ones((1, stt_sz, stt_sz, stt_sz)) * self.max_atoms_count
         low = np.zeros((1, stt_sz, stt_sz, stt_sz))
-        # self.action_space = spaces.Box(low=0,  high=1 , shape=(3,), dtype=np.float32)
-        self.action_space = spaces.Box(low=low, high=high_a, dtype=np.float32)
-        self.observation_space = spaces.Box(low=low, high=high_o, dtype=np.float32)
+        self.action_space = spaces.Box(low=0,  high=1 , shape=(3,), dtype=np.float32)
+        self.observation_space = spaces.Box(low=low, high=high, dtype=np.float32)
 
         # self.seed()
 
@@ -99,44 +97,8 @@ class PendulumEnv(gym.Env):
     
     def step(self, u):
         done = False
-        stt_sz = self.stt_sz
         side_len = self.side_len
-        voxel_side_cnt = self.voxel_side_cnt
-        # x, y, z = 0, 0, 0
-        # Done: 1. find the xyz position (max value with element around it modified to make the value continuous)
-        action = u[0]
-        result = np.where(action == np.amax(action))
-        # find xyz in whole action
-        x, y, z = 0, 0, 0
-        # if have multi max, choose the max sum around it
-        max_sub_arr_sum = -100
-        for idx in range(0, len(result[1])):
-            i, j, k = result[1][idx], result[2][idx], result[3][idx]
-            sub_arr = action[0, max(0, i-1):min(i+2, stt_sz), max(0, j-1):min(j+2, stt_sz), max(0, k-1):min(k+2, stt_sz)]
-            if np.sum(sub_arr)/sub_arr.size > max_sub_arr_sum:
-                max_sub_arr_sum = np.sum(sub_arr)/sub_arr.size
-                x, y, z = i, j, k
-        action = action[0, max(0, x-1):min(x+2, stt_sz), max(0, y-1):min(y+2, stt_sz), max(0, z-1):min(z+2, stt_sz)]
-        
-        result1 = np.where(action == np.amax(action))
-        # xyz in small action
-        x1, y1, z1 = result1[0][0], result1[1][0], result1[2][0]
-        # center of small action
-        x2, y2, z2 = 0, 0, 0
-        for i in range(action.shape[0]):
-            for j in range(action.shape[1]):
-                for k in range(action.shape[2]):
-                    x2 += (action[i][j][k] * i)
-                    y2 += (action[i][j][k] * j)
-                    z2 += (action[i][j][k] * k)
-        x2, y2, z2 = x2/np.sum(action), y2/np.sum(action), z2/np.sum(action)
-        x = x - (x1 - x2)
-        y = y - (y1 - y2)
-        z = z - (z1 - z2)
-        
-        x, y, z = x/voxel_side_cnt, y/voxel_side_cnt, z/voxel_side_cnt
-        # print(x, y, z)
-        # x, y, z = u[0], u[1], u[2]
+        x, y, z = u[0], u[1], u[2]
         # DONE: 2. add new atom to state
         morse_calc = MorsePotential()
         self.state_atoms.set_calculator(morse_calc)
