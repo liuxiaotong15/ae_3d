@@ -44,9 +44,9 @@ class Net(nn.Module):
         # self.conv3d3 = nn.Conv3d(2, 2, 2, stride=2, padding=0)
 
         # test_3
-        self.conv3d1 = nn.Conv3d(in_channels=4, out_channels=4, kernel_size=7, stride=2, padding=3)
+        self.conv3d1 = nn.Conv3d(in_channels=4, out_channels=8, kernel_size=7, stride=2, padding=3)
         # 4, 25, 25, 25
-        self.conv3d2 = nn.Conv3d(4, 2, 7, stride=2, padding=3)
+        self.conv3d2 = nn.Conv3d(8, 2, 7, stride=2, padding=3)
         # 2, 13, 13, 13
         self.conv3d3 = nn.Conv3d(2, 2, 3, stride=3, padding=2)
 
@@ -146,7 +146,7 @@ if __name__ == "__main__":
     mp.set_start_method('forkserver')
     gnet = Net(N_S, N_A)        # global network
     gnet.share_memory()         # share the global parameters in multiprocessing
-    opt = SharedAdam(gnet.parameters(), lr=1e-4, betas=(0.95, 0.999))  # global optimizer
+    opt = SharedAdam(gnet.parameters(), lr=1e-4, betas=(0.95, 0.999), weight_decay=1e-4)  # global optimizer
     global_ep, global_ep_r, res_queue = mp.Value('i', 0), mp.Value('d', 0.), mp.Queue()
 
     # parallel training
