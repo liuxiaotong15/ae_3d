@@ -16,7 +16,7 @@ import math, os
 os.environ["OMP_NUM_THREADS"] = "1"
 
 UPDATE_GLOBAL_ITER = 5
-GAMMA = 0.9
+GAMMA = 0.99
 MAX_EP = 30000000
 MAX_EP_STEP = 200
 
