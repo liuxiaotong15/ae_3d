@@ -64,7 +64,7 @@ def record(global_ep, global_ep_r, ep_r, res_queue, name):
     print(
         name,
         "Ep:", global_ep.value,
-        "| Ep_r_ma: %.0f" % global_ep_r.value,
-        "| Ep_r_cur: %.0f" % ep_r
+        "| Ep_r_ma: %.10f" % global_ep_r.value,
+        "| Ep_r_cur: %.10f" % ep_r
         )
 
