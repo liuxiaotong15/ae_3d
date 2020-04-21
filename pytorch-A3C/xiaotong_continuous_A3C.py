@@ -15,9 +15,6 @@ import gym
 import math, os
 os.environ["OMP_NUM_THREADS"] = "1"
 
-seed = 1234
-torch.manual_seed(seed)
-
 UPDATE_GLOBAL_ITER = 5
 GAMMA = 0.99
 MAX_EP = 30000000
@@ -105,6 +102,7 @@ class Net(nn.Module):
 class Worker(mp.Process):
     def __init__(self, gnet, opt, global_ep, global_ep_r, res_queue, name):
         super(Worker, self).__init__()
+        self.seed = name
         self.name = 'w%i' % name
         self.g_ep, self.g_ep_r, self.res_queue = global_ep, global_ep_r, res_queue
         self.gnet, self.opt = gnet, opt
@@ -114,6 +112,7 @@ class Worker(mp.Process):
 
     def run(self):
         total_step = 1
+        torch.manual_seed(self.seed)
         while self.g_ep.value < MAX_EP:
             s = self.env.reset()
             buffer_s, buffer_a, buffer_r = [], [], []
