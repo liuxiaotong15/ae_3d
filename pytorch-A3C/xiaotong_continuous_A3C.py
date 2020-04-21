@@ -13,6 +13,7 @@ import torch.multiprocessing as mp
 from shared_adam import SharedAdam
 import gym
 import math, os
+import numpy as np
 os.environ["OMP_NUM_THREADS"] = "1"
 
 UPDATE_GLOBAL_ITER = 5
@@ -129,13 +130,17 @@ class Worker(mp.Process):
     def run(self):
         total_step = 1
         torch.manual_seed(self.seed)
+        np.random.seed(self.seed)
         while self.g_ep.value < MAX_EP:
             s = self.env.reset()
             buffer_s, buffer_a, buffer_r = [], [], []
             r_history = []
             ep_r = 0.
             for t in range(MAX_EP_STEP):
-                # if self.name == 'w0':
+                if self.name == 'w0':
+                    volume = s[-1]
+                    print(self.name, 'state matrix msg: ')
+                    print('max: ', np.amax(volume), 'min: ', np.amin(volume), 'mean: ', np.average(volume), 'atoms cnt: ', t+1)
                 #     self.env.render()
                 a = self.lnet.choose_action(v_wrap(s[None, :]))
                 s_, r, done, _ = self.env.step(a.clip(LOW_A, HIGH_A))
