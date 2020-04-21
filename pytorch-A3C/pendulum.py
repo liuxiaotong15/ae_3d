@@ -27,7 +27,7 @@ class PendulumEnv(gym.Env):
         'video.frames_per_second' : 30
     }
 
-    side_len = 5
+    side_len = 3
     stt_sz = 50
     max_atoms_count = 10
     
@@ -80,7 +80,7 @@ class PendulumEnv(gym.Env):
 
 
     def __init__(self, g=10.0):
-        self.side_len = 5
+        self.side_len = 3
         stt_sz = self.stt_sz
         self.viewer = None
         # high = np.ones((250,)) * self.side_len
