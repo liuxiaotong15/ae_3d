@@ -73,7 +73,7 @@ class Net(nn.Module):
         mu = F.relu(self.mu1(x))
         mu = HIGH_A * torch.sigmoid(self.mu2(mu))
         sigma = F.relu(self.sigma1(x))
-        sigma = F.softplus(self.sigma2(sigma)) + 0.001      # avoid 0
+        sigma = F.softplus(self.sigma2(sigma)) + 0.0000001      # avoid 0
         x = F.relu(self.v1(x))
         values = self.v2(x)
         return mu, sigma, values
@@ -114,6 +114,7 @@ class Worker(mp.Process):
         while self.g_ep.value < MAX_EP:
             s = self.env.reset()
             buffer_s, buffer_a, buffer_r = [], [], []
+            r_history = []
             ep_r = 0.
             for t in range(MAX_EP_STEP):
                 # if self.name == 'w0':
@@ -126,7 +127,8 @@ class Worker(mp.Process):
                 buffer_a.append(a)
                 buffer_s.append(s)
                 # buffer_r.append((r+8.1)/8.1)    # normalize
-                buffer_r.append(r)    # normalize
+                buffer_r.append(r)
+                r_history.append(r)
 
                 if total_step % UPDATE_GLOBAL_ITER == 0 or done:  # update global and assign to local net
                     # sync
@@ -134,7 +136,7 @@ class Worker(mp.Process):
                     buffer_s, buffer_a, buffer_r = [], [], []
 
                     if done:  # done and print information
-                        record(self.g_ep, self.g_ep_r, ep_r, self.res_queue, self.name)
+                        record(self.g_ep, self.g_ep_r, ep_r, self.res_queue, self.name, r_history)
                         break
                 s = s_
                 total_step += 1

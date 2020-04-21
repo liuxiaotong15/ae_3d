@@ -52,7 +52,7 @@ def push_and_pull(opt, lnet, gnet, done, s_, bs, ba, br, gamma):
     lnet.load_state_dict(gnet.state_dict())
 
 
-def record(global_ep, global_ep_r, ep_r, res_queue, name):
+def record(global_ep, global_ep_r, ep_r, res_queue, name, r_history):
     with global_ep.get_lock():
         global_ep.value += 1
     with global_ep_r.get_lock():
@@ -67,4 +67,5 @@ def record(global_ep, global_ep_r, ep_r, res_queue, name):
         "| Ep_r_ma: %.10f" % global_ep_r.value,
         "| Ep_r_cur: %.10f" % ep_r
         )
+    print(name, ': '. r_history)
 
