@@ -52,7 +52,7 @@ def push_and_pull(opt, lnet, gnet, done, s_, bs, ba, br, gamma):
     lnet.load_state_dict(gnet.state_dict())
 
 
-def record(global_ep, global_ep_r, ep_r, res_queue, name, r_history):
+def record(global_ep, global_ep_r, ep_r, res_queue, name, r_history, global_max_ep_r):
     with global_ep.get_lock():
         global_ep.value += 1
     with global_ep_r.get_lock():
@@ -60,14 +60,18 @@ def record(global_ep, global_ep_r, ep_r, res_queue, name, r_history):
             global_ep_r.value = ep_r
         else:
             global_ep_r.value = global_ep_r.value * 0.99 + ep_r * 0.01
+    with global_max_ep_r.get_lock():
+        global_max_ep_r = max(global_max_ep_r, ep_r)
     res_queue.put(global_ep_r.value)
     print(
         commit_id,
         name,
         "Ep:", global_ep.value,
-        "| Ep_r_ma: %.10f" % global_ep_r.value,
-        "| Ep_r_cur: %.10f" % ep_r
+        "| Ep_r_ma: %.6f" % global_ep_r.value,
+        "| Ep_r_cur: %.6f" % ep_r,
+        '| Ep_r_max: %.6f' % global_max_ep_r.value
         )
-    print(name, ': ', r_history)
+    for rh in r_history:
+        print(rh)
     print('-' * 100)
 

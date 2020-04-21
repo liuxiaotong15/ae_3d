@@ -100,11 +100,12 @@ class Net(nn.Module):
 
 
 class Worker(mp.Process):
-    def __init__(self, gnet, opt, global_ep, global_ep_r, res_queue, name):
+    def __init__(self, gnet, opt, global_ep, global_ep_r, global_max_ep_r res_queue, name):
         super(Worker, self).__init__()
         self.seed = name
         self.name = 'w%i' % name
         self.g_ep, self.g_ep_r, self.res_queue = global_ep, global_ep_r, res_queue
+        self.g_ep_max_r = global_max_ep_r
         self.gnet, self.opt = gnet, opt
         self.lnet = Net(N_S, N_A)           # local network
         # self.env = gym.make('Pendulum-v0').unwrapped
@@ -138,7 +139,7 @@ class Worker(mp.Process):
                     buffer_s, buffer_a, buffer_r = [], [], []
 
                     if done:  # done and print information
-                        record(self.g_ep, self.g_ep_r, ep_r, self.res_queue, self.name, r_history)
+                        record(self.g_ep, self.g_ep_r, ep_r, self.res_queue, self.name, r_history, self.g_ep_max_r)
                         break
                 s = s_
                 total_step += 1
@@ -152,10 +153,10 @@ if __name__ == "__main__":
     gnet.share_memory()         # share the global parameters in multiprocessing
     opt = SharedAdam(gnet.parameters(), lr=1e-4, betas=(0.95, 0.999), weight_decay=1e-4)  # global optimizer
     global_ep, global_ep_r, res_queue = mp.Value('i', 0), mp.Value('d', 0.), mp.Queue()
-
+    global_max_ep_r = mp.Value('d', 0.)
     # parallel training
     # workers = [Worker(gnet, opt, global_ep, global_ep_r, res_queue, i) for i in range(mp.cpu_count()-2)]
-    workers = [Worker(gnet, opt, global_ep, global_ep_r, res_queue, i) for i in range(16)]
+    workers = [Worker(gnet, opt, global_ep, global_ep_r, global_max_ep_r, res_queue, i) for i in range(16)]
     [w.start() for w in workers]
     res = []                    # record episode reward to plot
     while True:
