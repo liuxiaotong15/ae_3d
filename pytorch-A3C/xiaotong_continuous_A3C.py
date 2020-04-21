@@ -52,14 +52,23 @@ class Net(nn.Module):
 
         self.fltt = 2*5*5*5
 
-        self.mu1 = nn.Linear(self.fltt, 100)
-        self.mu2 = nn.Linear(100, a_dim)
-        self.sigma1 = nn.Linear(self.fltt, 100)
-        self.sigma2 = nn.Linear(100, a_dim)
+        self.mu1 = nn.Linear(self.fltt, 256)
+        self.mu2 = nn.Linear(256, 128)
+        self.mu3 = nn.Linear(128, 64)
+        self.mu4 = nn.Linear(64, a_dim)
+        self.sigma1 = nn.Linear(self.fltt, 256)
+        self.sigma2 = nn.Linear(256, 128)
+        self.sigma3 = nn.Linear(128, 64)
+        self.sigma4 = nn.Linear(64, a_dim)
         # self.c1 = nn.Linear(s_dim, 100)
-        self.v1 = nn.Linear(self.fltt, 100)
-        self.v2 = nn.Linear(100, 1)
-        set_init([self.conv3d1, self.conv3d2, self.conv3d3, self.mu1, self.mu2, self.sigma1, self.sigma2, self.v1, self.v2])
+        self.v1 = nn.Linear(self.fltt, 256)
+        self.v2 = nn.Linear(256, 128)
+        self.v3 = nn.Linear(128, 64)
+        self.v4 = nn.Linear(64, 1)
+        set_init([self.conv3d1, self.conv3d2, self.conv3d3,
+            self.mu1, self.mu2, self.mu3, self.mu4,
+            self.sigma1, self.sigma2, self.sigma3, self.sigma4,
+            self.v1, self.v2, self.v3, self.v4])
         self.distribution = torch.distributions.Normal
 
     def forward(self, x):
@@ -71,11 +80,17 @@ class Net(nn.Module):
         x = F.max_pool3d(x, kernel_size=3, stride=1, padding=1)
         x = torch.flatten(x, start_dim=1)
         mu = F.relu(self.mu1(x))
-        mu = HIGH_A * torch.sigmoid(self.mu2(mu))
+        mu = F.relu(self.mu2(mu))
+        mu = F.relu(self.mu3(mu))
+        mu = HIGH_A * torch.sigmoid(self.mu4(mu))
         sigma = F.relu(self.sigma1(x))
-        sigma = F.softplus(self.sigma2(sigma)) + 0.0000001      # avoid 0
+        sigma = F.relu(self.sigma2(sigma))
+        sigma = F.relu(self.sigma3(sigma))
+        sigma = F.softplus(self.sigma4(sigma)) + 0.0000001      # avoid 0
         x = F.relu(self.v1(x))
-        values = self.v2(x)
+        x = F.relu(self.v2(x))
+        x = F.relu(self.v3(x))
+        values = self.v4(x)
         return mu, sigma, values
 
     def choose_action(self, s):
