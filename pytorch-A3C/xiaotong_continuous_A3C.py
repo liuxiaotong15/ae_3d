@@ -128,7 +128,7 @@ class Worker(mp.Process):
                 buffer_s.append(s)
                 # buffer_r.append((r+8.1)/8.1)    # normalize
                 buffer_r.append(r)
-                r_history.append(r)
+                r_history.append((r, a))
 
                 if total_step % UPDATE_GLOBAL_ITER == 0 or done:  # update global and assign to local net
                     # sync
