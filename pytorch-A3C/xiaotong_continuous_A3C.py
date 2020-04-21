@@ -15,6 +15,9 @@ import gym
 import math, os
 os.environ["OMP_NUM_THREADS"] = "1"
 
+seed = 1234
+torch.manual_seed(seed)
+
 UPDATE_GLOBAL_ITER = 5
 GAMMA = 0.99
 MAX_EP = 30000000
@@ -128,7 +131,7 @@ class Worker(mp.Process):
                 buffer_s.append(s)
                 # buffer_r.append((r+8.1)/8.1)    # normalize
                 buffer_r.append(r)
-                r_history.append((r, a))
+                r_history.append((r, a.clip(LOW_A, HIGH_A)))
 
                 if total_step % UPDATE_GLOBAL_ITER == 0 or done:  # update global and assign to local net
                     # sync
