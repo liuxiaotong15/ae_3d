@@ -62,8 +62,9 @@ def record(global_ep, global_ep_r, ep_r, res_queue, name):
             global_ep_r.value = global_ep_r.value * 0.99 + ep_r * 0.01
     res_queue.put(global_ep_r.value)
     print(
-        commit_id,
         name,
         "Ep:", global_ep.value,
-        "| Ep_r: %.10f" % global_ep_r.value,
-    )
+        "| Ep_r_ma: %.0f" % global_ep_r.value,
+        "| Ep_r_cur: %.0f" % ep_r
+        )
+
