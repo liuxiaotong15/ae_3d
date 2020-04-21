@@ -100,7 +100,7 @@ class Net(nn.Module):
 
 
 class Worker(mp.Process):
-    def __init__(self, gnet, opt, global_ep, global_ep_r, global_max_ep_r res_queue, name):
+    def __init__(self, gnet, opt, global_ep, global_ep_r, global_max_ep_r, res_queue, name):
         super(Worker, self).__init__()
         self.seed = name
         self.name = 'w%i' % name
