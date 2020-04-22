@@ -62,9 +62,9 @@ class Net(nn.Module):
         self.sigma3 = nn.Linear(128, 64)
         self.sigma4 = nn.Linear(256, a_dim)
         self.v1 = nn.Linear(self.fltt, 256)
-        self.v2 = nn.Linear(256, 128)
-        self.v3 = nn.Linear(128, 64)
-        self.v4 = nn.Linear(256, 1)
+        self.v2 = nn.Linear(256, 64)
+        self.v3 = nn.Linear(64, 32)
+        self.v4 = nn.Linear(32, 1)
         set_init([self.conv3d1, self.conv3d2, self.conv3d3,
             self.mu1, self.mu2, self.mu3, self.mu4,
             self.sigma1, self.sigma2, self.sigma3, self.sigma4,
@@ -88,8 +88,8 @@ class Net(nn.Module):
         # sigma = F.relu(self.sigma3(sigma))
         sigma = F.softplus(self.sigma4(sigma)) + 0.0000001      # avoid 0
         x = F.relu(self.v1(x))
-        # x = F.relu(self.v2(x))
-        # x = F.relu(self.v3(x))
+        x = F.relu(self.v2(x))
+        x = F.relu(self.v3(x))
         values = self.v4(x)
         return mu, sigma, values
 
