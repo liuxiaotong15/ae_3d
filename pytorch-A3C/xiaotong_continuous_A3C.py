@@ -171,6 +171,7 @@ class Worker(mp.Process):
 if __name__ == "__main__":
     mp.set_start_method('forkserver')
     gnet = Net(N_S, N_A)        # global network
+    gnet.load_state_dict(torch.load('./ep_11000.pth'))
     gnet.share_memory()         # share the global parameters in multiprocessing
     opt = SharedAdam(gnet.parameters(), lr=1e-4, betas=(0.95, 0.999), weight_decay=1e-3)  # global optimizer
     global_ep, global_ep_r, res_queue = mp.Value('i', 0), mp.Value('d', 0.), mp.Queue()
