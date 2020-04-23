@@ -62,8 +62,8 @@ class Net(nn.Module):
         self.sigma3 = nn.Linear(128, 64)
         self.sigma4 = nn.Linear(256, a_dim)
         self.v1 = nn.Linear(self.fltt, 256)
-        # self.v2 = nn.Linear(256, 64)
-        # self.v3 = nn.Linear(64, 32)
+        self.v2 = nn.Linear(256, 64)
+        self.v3 = nn.Linear(64, 32)
         self.v4 = nn.Linear(256, 1)
         set_init([self.conv3d1, self.conv3d2, self.conv3d3,
             self.mu1, self.mu2, self.mu3, self.mu4,
