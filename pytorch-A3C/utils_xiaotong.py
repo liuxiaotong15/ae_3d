@@ -54,8 +54,10 @@ def push_and_pull(opt, lnet, gnet, done, s_, bs, ba, br, gamma):
 
 
 def record(global_ep, global_ep_r, ep_r, res_queue, name, r_history, global_max_ep_r):
+    ret = 0
     with global_ep.get_lock():
         global_ep.value += 1
+        ret = global_ep.value
     with global_ep_r.get_lock():
         if global_ep_r.value == 0.:
             global_ep_r.value = ep_r
@@ -75,4 +77,5 @@ def record(global_ep, global_ep_r, ep_r, res_queue, name, r_history, global_max_
     for rh in r_history:
         print(rh)
     print('-' * 100)
+    return ret
 
