@@ -12,7 +12,7 @@ import torch.nn.functional as F
 import torch.multiprocessing as mp
 from shared_adam import SharedAdam
 import gym
-import math, os
+import math, os, time
 import numpy as np
 os.environ["OMP_NUM_THREADS"] = "1"
 
@@ -172,7 +172,7 @@ if __name__ == "__main__":
     mp.set_start_method('forkserver')
     gnet = Net(N_S, N_A)        # global network
     gnet.load_state_dict(torch.load('./ep_11000.pth'))
-    os.sleep(5)
+    time.sleep(5)
     gnet.share_memory()         # share the global parameters in multiprocessing
     opt = SharedAdam(gnet.parameters(), lr=1e-4, betas=(0.95, 0.999), weight_decay=1e-3)  # global optimizer
     global_ep, global_ep_r, res_queue = mp.Value('i', 0), mp.Value('d', 0.), mp.Queue()
