@@ -122,7 +122,8 @@ class Net(nn.Module):
 
 
         # print(s.shape, x2, y2, z2)
-        return np.array([x2/stt_sz, y2/stt_sz, z2/stt_sz])
+        # return np.array([x2/stt_sz, y2/stt_sz, z2/stt_sz])
+        return np.array([x/stt_sz, y/stt_sz, z/stt_sz])
         # return m.sample().numpy()
 
     def loss_func(self, s, a, v_t):
