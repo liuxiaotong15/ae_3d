@@ -45,7 +45,7 @@ class Net(nn.Module):
         # self.conv3d3 = nn.Conv3d(2, 2, 2, stride=2, padding=0)
 
         # test_3
-        self.conv3d1 = nn.Conv3d(in_channels=4, out_channels=8, kernel_size=7, stride=2, padding=3)
+        self.conv3d1 = nn.Conv3d(in_channels=1, out_channels=8, kernel_size=7, stride=2, padding=3)
         # 4, 25, 25, 25
         self.conv3d2 = nn.Conv3d(8, 2, 7, stride=2, padding=3)
         # 2, 13, 13, 13
@@ -56,11 +56,11 @@ class Net(nn.Module):
         self.mu1 = nn.Linear(self.fltt, 256)
         self.mu2 = nn.Linear(256, 128)
         self.mu3 = nn.Linear(128, 64)
-        self.mu4 = nn.Linear(256, a_dim)
+        self.mu4 = nn.Linear(256, 1)
         self.sigma1 = nn.Linear(self.fltt, 256)
         self.sigma2 = nn.Linear(256, 128)
         self.sigma3 = nn.Linear(128, 64)
-        self.sigma4 = nn.Linear(256, a_dim)
+        self.sigma4 = nn.Linear(256, 1)
         self.v1 = nn.Linear(self.fltt, 256)
         self.v2 = nn.Linear(256, 64)
         self.v3 = nn.Linear(64, 32)
@@ -95,9 +95,35 @@ class Net(nn.Module):
 
     def choose_action(self, s):
         self.training = False
+        stt_sz = s.shape[4]
+        if s.shape[0] != 1:
+            print('must handle batch training...')
+            1/0
         mu, sigma, _ = self.forward(s)
-        m = self.distribution(mu.view(3, ).data, sigma.view(3, ).data)
-        return m.sample().numpy()
+        m = self.distribution(mu.view(1, ).data, sigma.view(1, ).data)
+        v = max(0, min(0.99, m.sample().numpy()[0]))
+        s = s.numpy()
+        s1 = np.fabs(s - v)
+        # print(s1.shape, v, )
+        result1 = np.where(s1 == np.amin(s1))
+        # xyz in small action
+        x, y, z = result1[2][0], result1[3][0], result1[4][0]
+        action = s[0, 0, max(0, x-1):min(x+2, stt_sz), max(0, y-1):min(y+2, stt_sz), max(0, z-1):min(z+2, stt_sz)]
+        # print(action.shape)
+        # center of small action
+        x2, y2, z2 = 0, 0, 0
+        for i in range(action.shape[0]):
+            for j in range(action.shape[1]):
+                for k in range(action.shape[2]):
+                    x2 += (1/action[i][j][k] * i)
+                    y2 += (1/action[i][j][k] * j)
+                    z2 += (1/action[i][j][k] * k)
+        x2, y2, z2 = x2/np.sum(1/action), y2/np.sum(1/action), z2/np.sum(1/action)
+
+
+        # print(s.shape, x2, y2, z2)
+        return np.array([x2/stt_sz, y2/stt_sz, z2/stt_sz])
+        # return m.sample().numpy()
 
     def loss_func(self, s, a, v_t):
         self.train()
@@ -123,7 +149,7 @@ class Worker(mp.Process):
         self.g_ep_max_r = global_max_ep_r
         self.gnet, self.opt = gnet, opt
         self.lnet = Net(N_S, N_A)           # local network
-        self.lnet.load_state_dict(torch.load('./ep_11000.pth'))
+        # self.lnet.load_state_dict(torch.load('./ep_11000.pth'))
         # self.env = gym.make('Pendulum-v0').unwrapped
         self.env = env 
 
@@ -172,7 +198,7 @@ class Worker(mp.Process):
 if __name__ == "__main__":
     mp.set_start_method('forkserver')
     gnet = Net(N_S, N_A)        # global network
-    gnet.load_state_dict(torch.load('./ep_11000.pth'))
+    # gnet.load_state_dict(torch.load('./ep_11000.pth'))
     gnet.share_memory()         # share the global parameters in multiprocessing
     opt = SharedAdam(gnet.parameters(), lr=1e-5, betas=(0.95, 0.999), weight_decay=1e-3)  # global optimizer
     global_ep, global_ep_r, res_queue = mp.Value('i', 0), mp.Value('d', 0.), mp.Queue()
