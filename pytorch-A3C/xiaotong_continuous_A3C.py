@@ -95,36 +95,9 @@ class Net(nn.Module):
 
     def choose_action(self, s):
         self.training = False
-        stt_sz = s.shape[4]
-        if s.shape[0] != 1:
-            print('must handle batch training...')
-            1/0
         mu, sigma, _ = self.forward(s)
         m = self.distribution(mu.view(1, ).data, sigma.view(1, ).data)
-        v = max(0, min(0.99, m.sample().numpy()[0]))
-        s = s.numpy()
-        s1 = np.fabs(s - v)
-        # print(s1.shape, v, )
-        result1 = np.where(s1 == np.amin(s1))
-        # xyz in small action
-        x, y, z = result1[2][0], result1[3][0], result1[4][0]
-        action = s[0, 0, max(0, x-1):min(x+2, stt_sz), max(0, y-1):min(y+2, stt_sz), max(0, z-1):min(z+2, stt_sz)]
-        # print(action.shape)
-        # center of small action
-        x2, y2, z2 = 0, 0, 0
-        for i in range(action.shape[0]):
-            for j in range(action.shape[1]):
-                for k in range(action.shape[2]):
-                    x2 += (1/action[i][j][k] * i)
-                    y2 += (1/action[i][j][k] * j)
-                    z2 += (1/action[i][j][k] * k)
-        x2, y2, z2 = x2/np.sum(1/action), y2/np.sum(1/action), z2/np.sum(1/action)
-
-
-        # print(s.shape, x2, y2, z2)
-        # return np.array([x2/stt_sz, y2/stt_sz, z2/stt_sz])
-        return np.array([x/stt_sz, y/stt_sz, z/stt_sz])
-        # return m.sample().numpy()
+        return m.sample().numpy()
 
     def loss_func(self, s, a, v_t):
         self.train()
@@ -170,7 +143,39 @@ class Worker(mp.Process):
                     print('max: ', np.amax(volume), 'min: ', np.amin(volume), 'mean: ', np.average(volume), 'atoms cnt: ', t+1)
                 #     self.env.render()
                 a = self.lnet.choose_action(v_wrap(s[None, :]))
-                s_, r, done, _ = self.env.step(a.clip(LOW_A, HIGH_A))
+                
+                # action conversion
+                # print('a: ', a, a.shape)
+                stt_sz = s.shape[3]
+                if s.shape[0] != 1:
+                    print('must handle batch training...')
+                    1/0
+                v = a.clip(0, 1)
+                s1 = np.fabs(s - v)
+                # print(s1.shape, v, )
+                result1 = np.where(s1 == np.amin(s1))
+                # xyz in small action
+                x, y, z = result1[1][0], result1[2][0], result1[2][0]
+                action = s[0, max(0, x-1):min(x+2, stt_sz), max(0, y-1):min(y+2, stt_sz), max(0, z-1):min(z+2, stt_sz)]
+                # print(action.shape)
+                # center of small action
+                x2, y2, z2 = 0, 0, 0
+                for i in range(action.shape[0]):
+                    for j in range(action.shape[1]):
+                        for k in range(action.shape[2]):
+                            x2 += (1/action[i][j][k] * i)
+                            y2 += (1/action[i][j][k] * j)
+                            z2 += (1/action[i][j][k] * k)
+                x2, y2, z2 = x2/np.sum(1/action), y2/np.sum(1/action), z2/np.sum(1/action)
+
+
+                # print(s.shape, x2, y2, z2)
+                # return np.array([x2/stt_sz, y2/stt_sz, z2/stt_sz])
+                # return np.array([x/stt_sz, y/stt_sz, z/stt_sz])
+
+
+                s_, r, done, _ = self.env.step(np.array([x/stt_sz, y/stt_sz, z/stt_sz]))
+                # s_, r, done, _ = self.env.step(a.clip(LOW_A, HIGH_A))
                 if t == MAX_EP_STEP - 1:
                     done = True
                 ep_r += r
@@ -178,7 +183,8 @@ class Worker(mp.Process):
                 buffer_s.append(s)
                 # buffer_r.append((r+8.1)/8.1)    # normalize
                 buffer_r.append(r)
-                r_history.append((r, a.clip(LOW_A, HIGH_A)))
+                # r_history.append((r, a.clip(LOW_A, HIGH_A)))
+                r_history.append((r, np.array([x/stt_sz, y/stt_sz, z/stt_sz])))
 
                 if total_step % UPDATE_GLOBAL_ITER == 0 or done:  # update global and assign to local net
                     # sync
@@ -206,7 +212,7 @@ if __name__ == "__main__":
     global_max_ep_r = mp.Value('d', 0.)
     # parallel training
     # workers = [Worker(gnet, opt, global_ep, global_ep_r, res_queue, i) for i in range(mp.cpu_count()-2)]
-    workers = [Worker(gnet, opt, global_ep, global_ep_r, global_max_ep_r, res_queue, i) for i in range(24)]
+    workers = [Worker(gnet, opt, global_ep, global_ep_r, global_max_ep_r, res_queue, i) for i in range(1)]
     [w.start() for w in workers]
     res = []                    # record episode reward to plot
     while True:
