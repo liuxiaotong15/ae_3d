@@ -49,7 +49,7 @@ class PendulumEnv(gym.Env):
     # state_shap = 250
     def atoms2voxels(self, at):
         # 50*50*50 voxel returned
-        sigma = 2
+        sigma = 1
         voxel_side_cnt = self.voxel_side_cnt
         side_len = self.side_len
         # volume = np.random.rand(voxel_side_cnt, voxel_side_cnt, voxel_side_cnt)
