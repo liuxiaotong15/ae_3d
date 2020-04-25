@@ -156,7 +156,7 @@ class Worker(mp.Process):
                 # print(s1.shape, v, )
                 result1 = np.where(s1 == np.amin(s1))
                 # xyz in small action
-                x, y, z = result1[1][0], result1[2][0], result1[2][0]
+                x, y, z = result1[1][0], result1[2][0], result1[3][0]
                 # cal the delta x, y, z
                 # action = s[0, max(0, x-1):min(x+2, stt_sz), max(0, y-1):min(y+2, stt_sz), max(0, z-1):min(z+2, stt_sz)]
                 # print(action.shape)
