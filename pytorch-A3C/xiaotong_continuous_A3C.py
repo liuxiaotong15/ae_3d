@@ -151,22 +151,34 @@ class Worker(mp.Process):
                     print('must handle batch training...')
                     1/0
                 v = a.clip(0, 1)
+                print('output a,v is: ', a, v)
                 s1 = np.fabs(s - v)
                 # print(s1.shape, v, )
                 result1 = np.where(s1 == np.amin(s1))
                 # xyz in small action
                 x, y, z = result1[1][0], result1[2][0], result1[2][0]
-                action = s[0, max(0, x-1):min(x+2, stt_sz), max(0, y-1):min(y+2, stt_sz), max(0, z-1):min(z+2, stt_sz)]
+                # cal the delta x, y, z
+                # action = s[0, max(0, x-1):min(x+2, stt_sz), max(0, y-1):min(y+2, stt_sz), max(0, z-1):min(z+2, stt_sz)]
                 # print(action.shape)
                 # center of small action
-                x2, y2, z2 = 0, 0, 0
-                for i in range(action.shape[0]):
-                    for j in range(action.shape[1]):
-                        for k in range(action.shape[2]):
-                            x2 += (1/action[i][j][k] * i)
-                            y2 += (1/action[i][j][k] * j)
-                            z2 += (1/action[i][j][k] * k)
-                x2, y2, z2 = x2/np.sum(1/action), y2/np.sum(1/action), z2/np.sum(1/action)
+                dx, dy, dz = 0, 0, 0
+                for i in range(s.shape[1]):
+                    if abs(x-i) == 1:
+                        if (s[0][i][y][z] - v) * (s[0][x][y][z] - v) < 0:
+                            dx = ((i-x) * abs(s[0][i][y][z] - v)/(abs(s[0][x][y][z] - v) + abs((s[0][i][y][z] - v))))[0]
+                            break
+                for j in range(s.shape[2]):
+                    if abs(y-j) == 1:
+                        if (s[0][x][j][z] - v) * (s[0][x][y][z] - v) < 0:
+                            dy = ((j-y) * abs(s[0][x][j][z] - v)/(abs(s[0][x][y][z] - v) + abs((s[0][x][j][z] - v))))[0]
+                            break
+                for k in range(s.shape[3]):
+                    if abs(z-k) == 1:
+                        if (s[0][x][y][k] - v) * (s[0][x][y][z] - v) < 0:
+                            dz = ((k-z) * abs(s[0][x][y][k] - v)/(abs(s[0][x][y][z] - v) + abs((s[0][x][y][k] - v))))[0]
+                            break
+                print(dx, dy, dz)
+                # x2, y2, z2 = x2/np.sum(1/action), y2/np.sum(1/action), z2/np.sum(1/action)
 
 
                 # print(s.shape, x2, y2, z2)
@@ -174,7 +186,7 @@ class Worker(mp.Process):
                 # return np.array([x/stt_sz, y/stt_sz, z/stt_sz])
 
 
-                s_, r, done, _ = self.env.step(np.array([x/stt_sz, y/stt_sz, z/stt_sz]))
+                s_, r, done, _ = self.env.step(np.array([(x+dx)/stt_sz, (y+dy)/stt_sz, (z+dz)/stt_sz]))
                 # s_, r, done, _ = self.env.step(a.clip(LOW_A, HIGH_A))
                 if t == MAX_EP_STEP - 1:
                     done = True
@@ -184,7 +196,7 @@ class Worker(mp.Process):
                 # buffer_r.append((r+8.1)/8.1)    # normalize
                 buffer_r.append(r)
                 # r_history.append((r, a.clip(LOW_A, HIGH_A)))
-                r_history.append((r, np.array([x/stt_sz, y/stt_sz, z/stt_sz])))
+                r_history.append((r, np.array([(x+dx)/stt_sz, (y+dy)/stt_sz, (z+dz)/stt_sz])))
 
                 if total_step % UPDATE_GLOBAL_ITER == 0 or done:  # update global and assign to local net
                     # sync
@@ -207,12 +219,12 @@ if __name__ == "__main__":
     gnet = Net(N_S, N_A)        # global network
     # gnet.load_state_dict(torch.load('./ep_11000.pth'))
     gnet.share_memory()         # share the global parameters in multiprocessing
-    opt = SharedAdam(gnet.parameters(), lr=1e-5, betas=(0.95, 0.999), weight_decay=1e-3)  # global optimizer
+    opt = SharedAdam(gnet.parameters(), lr=1e-4, betas=(0.95, 0.999), weight_decay=1e-3)  # global optimizer
     global_ep, global_ep_r, res_queue = mp.Value('i', 0), mp.Value('d', 0.), mp.Queue()
     global_max_ep_r = mp.Value('d', 0.)
     # parallel training
     # workers = [Worker(gnet, opt, global_ep, global_ep_r, res_queue, i) for i in range(mp.cpu_count()-2)]
-    workers = [Worker(gnet, opt, global_ep, global_ep_r, global_max_ep_r, res_queue, i) for i in range(24)]
+    workers = [Worker(gnet, opt, global_ep, global_ep_r, global_max_ep_r, res_queue, i) for i in range(1)]
     [w.start() for w in workers]
     res = []                    # record episode reward to plot
     while True:
