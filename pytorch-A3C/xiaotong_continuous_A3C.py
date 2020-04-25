@@ -196,7 +196,7 @@ class Worker(mp.Process):
                 # buffer_r.append((r+8.1)/8.1)    # normalize
                 buffer_r.append(r)
                 # r_history.append((r, a.clip(LOW_A, HIGH_A)))
-                r_history.append((r, np.array([(x+dx)/stt_sz, (y+dy)/stt_sz, (z+dz)/stt_sz]), a, v))
+                r_history.append((r, np.array([(x+dx)/stt_sz, (y+dy)/stt_sz, (z+dz)/stt_sz]), a[0], v[0]))
 
                 if total_step % UPDATE_GLOBAL_ITER == 0 or done:  # update global and assign to local net
                     # sync
