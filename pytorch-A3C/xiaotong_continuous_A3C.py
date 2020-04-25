@@ -165,17 +165,17 @@ class Worker(mp.Process):
                 for i in range(s.shape[1]):
                     if abs(x-i) == 1:
                         if (s[0][i][y][z] - v) * (s[0][x][y][z] - v) < 0:
-                            dx = ((i-x) * abs(s[0][i][y][z] - v)/(abs(s[0][x][y][z] - v) + abs((s[0][i][y][z] - v))))[0]
+                            dx = ((i-x) * abs(s[0][x][y][z] - v)/(abs(s[0][x][y][z] - v) + abs((s[0][i][y][z] - v))))[0]
                             break
                 for j in range(s.shape[2]):
                     if abs(y-j) == 1:
                         if (s[0][x][j][z] - v) * (s[0][x][y][z] - v) < 0:
-                            dy = ((j-y) * abs(s[0][x][j][z] - v)/(abs(s[0][x][y][z] - v) + abs((s[0][x][j][z] - v))))[0]
+                            dy = ((j-y) * abs(s[0][x][y][z] - v)/(abs(s[0][x][y][z] - v) + abs((s[0][x][j][z] - v))))[0]
                             break
                 for k in range(s.shape[3]):
                     if abs(z-k) == 1:
                         if (s[0][x][y][k] - v) * (s[0][x][y][z] - v) < 0:
-                            dz = ((k-z) * abs(s[0][x][y][k] - v)/(abs(s[0][x][y][z] - v) + abs((s[0][x][y][k] - v))))[0]
+                            dz = ((k-z) * abs(s[0][x][y][z] - v)/(abs(s[0][x][y][z] - v) + abs((s[0][x][y][k] - v))))[0]
                             break
                 # print(dx, dy, dz)
                 # x2, y2, z2 = x2/np.sum(1/action), y2/np.sum(1/action), z2/np.sum(1/action)
