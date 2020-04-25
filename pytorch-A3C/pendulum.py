@@ -27,7 +27,7 @@ class PendulumEnv(gym.Env):
         'video.frames_per_second' : 30
     }
 
-    side_len = 3
+    side_len = 5
     stt_sz = 50
     max_atoms_count = 2
     
@@ -49,7 +49,7 @@ class PendulumEnv(gym.Env):
     # state_shap = 250
     def atoms2voxels(self, at):
         # 50*50*50 voxel returned
-        sigma = 1
+        sigma = 2
         voxel_side_cnt = self.voxel_side_cnt
         side_len = self.side_len
         # volume = np.random.rand(voxel_side_cnt, voxel_side_cnt, voxel_side_cnt)
@@ -80,7 +80,7 @@ class PendulumEnv(gym.Env):
 
 
     def __init__(self, g=10.0):
-        self.side_len = 3
+        self.side_len = 5
         stt_sz = self.stt_sz
         self.viewer = None
         # high = np.ones((250,)) * self.side_len
@@ -112,7 +112,7 @@ class PendulumEnv(gym.Env):
         self.state_atoms.set_calculator(morse_calc)
         next_engy = self.state_atoms.get_potential_energy()
         reward = orig_engy - next_engy
-        if reward < 0.9:
+        if reward < 0.01:
             done = True
         reward = max(0, reward)
         if len(self.state_atoms) == self.max_atoms_count:
