@@ -151,7 +151,7 @@ class Worker(mp.Process):
                     print('must handle batch training...')
                     1/0
                 v = a.clip(0, 1)
-                print('output a,v is: ', a, v)
+                # print('output a,v is: ', a, v)
                 s1 = np.fabs(s - v)
                 # print(s1.shape, v, )
                 result1 = np.where(s1 == np.amin(s1))
@@ -177,7 +177,7 @@ class Worker(mp.Process):
                         if (s[0][x][y][k] - v) * (s[0][x][y][z] - v) < 0:
                             dz = ((k-z) * abs(s[0][x][y][k] - v)/(abs(s[0][x][y][z] - v) + abs((s[0][x][y][k] - v))))[0]
                             break
-                print(dx, dy, dz)
+                # print(dx, dy, dz)
                 # x2, y2, z2 = x2/np.sum(1/action), y2/np.sum(1/action), z2/np.sum(1/action)
 
 
@@ -224,7 +224,7 @@ if __name__ == "__main__":
     global_max_ep_r = mp.Value('d', 0.)
     # parallel training
     # workers = [Worker(gnet, opt, global_ep, global_ep_r, res_queue, i) for i in range(mp.cpu_count()-2)]
-    workers = [Worker(gnet, opt, global_ep, global_ep_r, global_max_ep_r, res_queue, i) for i in range(1)]
+    workers = [Worker(gnet, opt, global_ep, global_ep_r, global_max_ep_r, res_queue, i) for i in range(24)]
     [w.start() for w in workers]
     res = []                    # record episode reward to plot
     while True:
