@@ -82,7 +82,7 @@ class Net(nn.Module):
         mu = F.relu(self.mu1(x))
         # mu = F.relu(self.mu2(mu))
         # mu = F.relu(self.mu3(mu))
-        mu = self.mu4(mu)
+        mu = F.softplus(self.mu4(mu)) + 0.000001
         sigma = F.relu(self.sigma1(x))
         # sigma = F.relu(self.sigma2(sigma))
         # sigma = F.relu(self.sigma3(sigma))
@@ -110,7 +110,10 @@ class Net(nn.Module):
         entropy = 0.5 + 0.5 * math.log(2 * math.pi) + torch.log(m.scale)  # exploration
         exp_v = log_prob * td.detach() + 0.003 * entropy
         a_loss = -exp_v
+        s_max = a[0][-1] - torch.max(s)
         total_loss = (a_loss + c_loss).mean()
+        if s_max > 0:
+            total_loss += s_max
         return total_loss
 
 
@@ -227,7 +230,7 @@ if __name__ == "__main__":
     global_max_ep_r = mp.Value('d', 0.)
     # parallel training
     # workers = [Worker(gnet, opt, global_ep, global_ep_r, res_queue, i) for i in range(mp.cpu_count()-2)]
-    workers = [Worker(gnet, opt, global_ep, global_ep_r, global_max_ep_r, res_queue, i) for i in range(24)]
+    workers = [Worker(gnet, opt, global_ep, global_ep_r, global_max_ep_r, res_queue, i) for i in range(1)]
     [w.start() for w in workers]
     res = []                    # record episode reward to plot
     while True:
