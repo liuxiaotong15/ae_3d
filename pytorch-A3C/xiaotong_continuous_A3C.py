@@ -45,7 +45,7 @@ class Net(nn.Module):
         # self.conv3d3 = nn.Conv3d(2, 2, 2, stride=2, padding=0)
 
         # test_3
-        self.conv3d1 = nn.Conv3d(in_channels=1, out_channels=8, kernel_size=7, stride=2, padding=3)
+        self.conv3d1 = nn.Conv3d(in_channels=2, out_channels=8, kernel_size=7, stride=2, padding=3)
         # 4, 25, 25, 25
         self.conv3d2 = nn.Conv3d(8, 2, 7, stride=2, padding=3)
         # 2, 13, 13, 13
@@ -56,11 +56,11 @@ class Net(nn.Module):
         self.mu1 = nn.Linear(self.fltt, 256)
         self.mu2 = nn.Linear(256, 128)
         self.mu3 = nn.Linear(128, 64)
-        self.mu4 = nn.Linear(256, 1)
+        self.mu4 = nn.Linear(256, 2)
         self.sigma1 = nn.Linear(self.fltt, 256)
         self.sigma2 = nn.Linear(256, 128)
         self.sigma3 = nn.Linear(128, 64)
-        self.sigma4 = nn.Linear(256, 1)
+        self.sigma4 = nn.Linear(256, 2)
         self.v1 = nn.Linear(self.fltt, 256)
         self.v2 = nn.Linear(256, 64)
         self.v3 = nn.Linear(64, 32)
@@ -82,7 +82,7 @@ class Net(nn.Module):
         mu = F.relu(self.mu1(x))
         # mu = F.relu(self.mu2(mu))
         # mu = F.relu(self.mu3(mu))
-        mu = HIGH_A * torch.sigmoid(self.mu4(mu))
+        mu = self.mu4(mu)
         sigma = F.relu(self.sigma1(x))
         # sigma = F.relu(self.sigma2(sigma))
         # sigma = F.relu(self.sigma3(sigma))
@@ -96,7 +96,7 @@ class Net(nn.Module):
     def choose_action(self, s):
         self.training = False
         mu, sigma, _ = self.forward(s)
-        m = self.distribution(mu.view(1, ).data, sigma.view(1, ).data)
+        m = self.distribution(mu.view(2, ).data, sigma.view(2, ).data)
         return m.sample().numpy()
 
     def loss_func(self, s, a, v_t):
@@ -123,7 +123,7 @@ class Worker(mp.Process):
         self.g_ep_max_r = global_max_ep_r
         self.gnet, self.opt = gnet, opt
         self.lnet = Net(N_S, N_A)           # local network
-        self.lnet.load_state_dict(torch.load('./ep_11000.pth'))
+        # self.lnet.load_state_dict(torch.load('./ep_11000.pth'))
         # self.env = gym.make('Pendulum-v0').unwrapped
         self.env = env 
 
@@ -138,25 +138,28 @@ class Worker(mp.Process):
             ep_r = 0.
             for t in range(MAX_EP_STEP):
                 if self.name == 'w0':
-                    volume = s[-1]
-                    print(self.name, 'state matrix msg: ')
-                    print('max: ', np.amax(volume), 'min: ', np.amin(volume), 'mean: ', np.average(volume), 'atoms cnt: ', t+1)
+                    print('std max: ', np.amax(s[0]), 'min: ', np.amin(s[0]), 'mean: ', np.average(s[0]), 'atoms cnt: ', t+1)
+                    print('mean max: ', np.amax(s[1]), 'min: ', np.amin(s[1]), 'mean: ', np.average(s[1]), 'atoms cnt: ', t+1)
                 #     self.env.render()
                 a = self.lnet.choose_action(v_wrap(s[None, :]))
                 
                 # action conversion
                 # print('a: ', a, a.shape)
+                # print('s: ', s.shape)
                 stt_sz = s.shape[3]
-                if s.shape[0] != 1:
-                    print('must handle batch training...')
-                    1/0
-                v = a.clip(0, 1)
+                # if s.shape[0] != 1:
+                #     print('must handle batch training...')
+                #     1/0
+                # v = a.clip(0, 1)
                 # print('output a,v is: ', a, v)
-                s1 = np.fabs(s - v)
+                std = a[0]
+                v = a[1]
+                s1 = np.fabs(s[0] - std)
+                s1 += np.fabs(s[1] - v)
                 # print(s1.shape, v, )
                 result1 = np.where(s1 == np.amin(s1))
                 # xyz in small action
-                x, y, z = result1[1][0], result1[2][0], result1[3][0]
+                x, y, z = result1[0][0], result1[1][0], result1[2][0]
                 # cal the delta x, y, z
                 # action = s[0, max(0, x-1):min(x+2, stt_sz), max(0, y-1):min(y+2, stt_sz), max(0, z-1):min(z+2, stt_sz)]
                 # print(action.shape)
@@ -164,18 +167,18 @@ class Worker(mp.Process):
                 dx, dy, dz = 0, 0, 0
                 for i in range(s.shape[1]):
                     if abs(x-i) == 1:
-                        if (s[0][i][y][z] - v) * (s[0][x][y][z] - v) < 0:
-                            dx = ((i-x) * abs(s[0][x][y][z] - v)/(abs(s[0][x][y][z] - v) + abs((s[0][i][y][z] - v))))[0]
+                        if (s[-1][i][y][z] - v) * (s[-1][x][y][z] - v) < 0:
+                            dx = ((i-x) * abs(s[-1][x][y][z] - v)/(abs(s[-1][x][y][z] - v) + abs((s[-1][i][y][z] - v))))
                             break
                 for j in range(s.shape[2]):
                     if abs(y-j) == 1:
-                        if (s[0][x][j][z] - v) * (s[0][x][y][z] - v) < 0:
-                            dy = ((j-y) * abs(s[0][x][y][z] - v)/(abs(s[0][x][y][z] - v) + abs((s[0][x][j][z] - v))))[0]
+                        if (s[-1][x][j][z] - v) * (s[-1][x][y][z] - v) < 0:
+                            dy = ((j-y) * abs(s[-1][x][y][z] - v)/(abs(s[-1][x][y][z] - v) + abs((s[-1][x][j][z] - v))))
                             break
                 for k in range(s.shape[3]):
                     if abs(z-k) == 1:
-                        if (s[0][x][y][k] - v) * (s[0][x][y][z] - v) < 0:
-                            dz = ((k-z) * abs(s[0][x][y][z] - v)/(abs(s[0][x][y][z] - v) + abs((s[0][x][y][k] - v))))[0]
+                        if (s[-1][x][y][k] - v) * (s[-1][x][y][z] - v) < 0:
+                            dz = ((k-z) * abs(s[-1][x][y][z] - v)/(abs(s[-1][x][y][z] - v) + abs((s[-1][x][y][k] - v))))
                             break
                 # print(dx, dy, dz)
                 # x2, y2, z2 = x2/np.sum(1/action), y2/np.sum(1/action), z2/np.sum(1/action)
@@ -196,7 +199,7 @@ class Worker(mp.Process):
                 # buffer_r.append((r+8.1)/8.1)    # normalize
                 buffer_r.append(r)
                 # r_history.append((r, a.clip(LOW_A, HIGH_A)))
-                r_history.append((r, np.array([(x+dx)/stt_sz, (y+dy)/stt_sz, (z+dz)/stt_sz]), a[0], v[0]))
+                r_history.append((r, np.array([(x+dx)/stt_sz, (y+dy)/stt_sz, (z+dz)/stt_sz]), a))
 
                 if total_step % UPDATE_GLOBAL_ITER == 0 or done:  # update global and assign to local net
                     # sync
@@ -217,7 +220,7 @@ class Worker(mp.Process):
 if __name__ == "__main__":
     mp.set_start_method('forkserver')
     gnet = Net(N_S, N_A)        # global network
-    gnet.load_state_dict(torch.load('./ep_11000.pth'))
+    # gnet.load_state_dict(torch.load('./ep_11000.pth'))
     gnet.share_memory()         # share the global parameters in multiprocessing
     opt = SharedAdam(gnet.parameters(), lr=1e-4, betas=(0.95, 0.999), weight_decay=1e-3)  # global optimizer
     global_ep, global_ep_r, res_queue = mp.Value('i', 0), mp.Value('d', 0.), mp.Queue()

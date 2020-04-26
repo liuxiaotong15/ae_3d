@@ -43,7 +43,7 @@ class PendulumEnv(gym.Env):
         -331.588748, -336.121753, -341.266253, -346.610834, -351.472365, -356.372708, -361.727086, -367.0722648, -372.832290, -378.333471, #71-80
     ]
     
-    state_voxels = np.zeros((1, stt_sz, stt_sz, stt_sz))
+    state_voxels = np.zeros((2, stt_sz, stt_sz, stt_sz))
     state_atoms = Atoms()
     voxel_side_cnt = stt_sz
     # state_shap = 250
@@ -53,18 +53,21 @@ class PendulumEnv(gym.Env):
         voxel_side_cnt = self.voxel_side_cnt
         side_len = self.side_len
         # volume = np.random.rand(voxel_side_cnt, voxel_side_cnt, voxel_side_cnt)
-        volume = np.zeros((1, voxel_side_cnt, voxel_side_cnt, voxel_side_cnt), dtype=float)
+        volume = np.zeros((2, voxel_side_cnt, voxel_side_cnt, voxel_side_cnt), dtype=float)
         for i, j, k in itertools.product(range(voxel_side_cnt),
                 range(voxel_side_cnt),
                 range(voxel_side_cnt)):
             # volume[0][i][j][k] = i/voxel_side_cnt
             # volume[1][i][j][k] = j/voxel_side_cnt
             # volume[2][i][j][k] = k/voxel_side_cnt
+            dis_lst = []
             for idx in range(len(at)):
                 x, y, z = i/voxel_side_cnt * side_len, j/voxel_side_cnt * side_len, k/voxel_side_cnt * side_len
                 pow_sum = (x-at[idx].position[0])**2 + (y-at[idx].position[1])**2 + (z-at[idx].position[2])**2
                 volume[-1][i][j][k] += math.exp(-1*pow_sum/(2*sigma**2))
-        volume[-1] /= np.amax(volume[-1])
+                dis_lst.append(math.sqrt(pow_sum))
+            volume[0][i][j][k] = np.std(np.array(dis_lst))
+        # volume[-1] /= np.amax(volume[-1])
         # print('max: ', np.amax(volume), 'min: ', np.amin(volume), 'mean: ', np.average(volume), 'atoms cnt: ', len(at))
         return volume
 
