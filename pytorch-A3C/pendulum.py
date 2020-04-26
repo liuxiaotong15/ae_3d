@@ -69,7 +69,7 @@ class PendulumEnv(gym.Env):
             volume[0][i][j][k] = np.std(np.array(dis_lst))
             volume[1][i][j][k] = np.amax(np.array(dis_lst))
             volume[2][i][j][k] = np.amin(np.array(dis_lst))
-        # volume[-1] /= np.amax(volume[-1])
+        volume[-1] /= np.amax(volume[-1])
         # print('max: ', np.amax(volume), 'min: ', np.amin(volume), 'mean: ', np.average(volume), 'atoms cnt: ', len(at))
         return volume
 

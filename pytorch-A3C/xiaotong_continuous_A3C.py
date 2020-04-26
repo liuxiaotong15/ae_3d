@@ -90,10 +90,10 @@ class Net(nn.Module):
         mu = F.relu(self.mu1(x))
         # mu = F.relu(self.mu2(mu))
         # mu = F.relu(self.mu3(mu))
-        mu = F.softplus(self.mu4(mu)) + 0.0000001
+        mu = F.sigmoid(self.mu4(mu))
 
         mu_pre = F.relu(self.mu_pre1(x))
-        mu_pre = F.softplus(self.mu_pre4(mu_pre)) + 0.0000001
+        mu_pre = F.sigmoid(self.mu_pre4(mu_pre))
 
         sigma = F.relu(self.sigma1(x))
         # sigma = F.relu(self.sigma2(sigma))
@@ -254,7 +254,7 @@ if __name__ == "__main__":
     global_max_ep_r = mp.Value('d', 0.)
     # parallel training
     # workers = [Worker(gnet, opt, global_ep, global_ep_r, res_queue, i) for i in range(mp.cpu_count()-2)]
-    workers = [Worker(gnet, opt, global_ep, global_ep_r, global_max_ep_r, res_queue, i) for i in range(24)]
+    workers = [Worker(gnet, opt, global_ep, global_ep_r, global_max_ep_r, res_queue, i) for i in range(20)]
     [w.start() for w in workers]
     res = []                    # record episode reward to plot
     while True:
