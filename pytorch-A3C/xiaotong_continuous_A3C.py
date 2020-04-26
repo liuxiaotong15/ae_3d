@@ -57,7 +57,13 @@ class Net(nn.Module):
         self.mu1 = nn.Linear(self.fltt, 256)
         self.mu2 = nn.Linear(256, 128)
         self.mu3 = nn.Linear(128, 64)
-        self.mu4 = nn.Linear(256, 4)
+        self.mu4 = nn.Linear(256, 1)
+
+        self.mu_pre1 = nn.Linear(self.fltt, 256)
+        self.mu_pre2 = nn.Linear(256, 128)
+        self.mu_pre3 = nn.Linear(128, 64)
+        self.mu_pre4 = nn.Linear(256, 3)
+
         self.sigma1 = nn.Linear(self.fltt, 256)
         self.sigma2 = nn.Linear(256, 128)
         self.sigma3 = nn.Linear(128, 64)
@@ -68,6 +74,7 @@ class Net(nn.Module):
         self.v4 = nn.Linear(256, 1)
         set_init([self.conv3d1, self.conv3d2, self.conv3d3,
             self.mu1, self.mu2, self.mu3, self.mu4,
+            self.mu_pre1, self.mu_pre2, self.mu_pre3, self.mu_pre4,
             self.sigma1, self.sigma2, self.sigma3, self.sigma4,
             self.v1, self.v2, self.v3, self.v4])
         self.distribution = torch.distributions.Normal
@@ -84,6 +91,10 @@ class Net(nn.Module):
         # mu = F.relu(self.mu2(mu))
         # mu = F.relu(self.mu3(mu))
         mu = F.softplus(self.mu4(mu)) + 0.0000001
+
+        mu_pre = F.relu(self.mu_pre1(x))
+        mu_pre = F.softplus(self.mu_pre4(mu_pre)) + 0.0000001
+
         sigma = F.relu(self.sigma1(x))
         # sigma = F.relu(self.sigma2(sigma))
         # sigma = F.relu(self.sigma3(sigma))
@@ -92,6 +103,8 @@ class Net(nn.Module):
         # x = F.relu(self.v2(x))
         # x = F.relu(self.v3(x))
         values = F.relu(self.v4(x))
+
+        mu = torch.cat((mu_pre, mu), 1)
         return mu, sigma, values
 
     def choose_action(self, s):
