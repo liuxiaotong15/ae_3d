@@ -57,15 +57,15 @@ class Net(nn.Module):
         self.mu1 = nn.Linear(self.fltt, 256)
         self.mu2 = nn.Linear(256, 128)
         self.mu3 = nn.Linear(128, 64)
-        self.mu4 = nn.Linear(64, 4)
+        self.mu4 = nn.Linear(256, 4)
         self.sigma1 = nn.Linear(self.fltt, 256)
         self.sigma2 = nn.Linear(256, 128)
         self.sigma3 = nn.Linear(128, 64)
-        self.sigma4 = nn.Linear(64, 4)
+        self.sigma4 = nn.Linear(256, 4)
         self.v1 = nn.Linear(self.fltt, 256)
         self.v2 = nn.Linear(256, 64)
         self.v3 = nn.Linear(64, 32)
-        self.v4 = nn.Linear(32, 1)
+        self.v4 = nn.Linear(256, 1)
         set_init([self.conv3d1, self.conv3d2, self.conv3d3,
             self.mu1, self.mu2, self.mu3, self.mu4,
             self.sigma1, self.sigma2, self.sigma3, self.sigma4,
@@ -81,16 +81,16 @@ class Net(nn.Module):
         x = F.max_pool3d(x, kernel_size=3, stride=1, padding=1)
         x = torch.flatten(x, start_dim=1)
         mu = F.relu(self.mu1(x))
-        mu = F.relu(self.mu2(mu))
-        mu = F.relu(self.mu3(mu))
+        # mu = F.relu(self.mu2(mu))
+        # mu = F.relu(self.mu3(mu))
         mu = F.softplus(self.mu4(mu)) + 0.0000001
         sigma = F.relu(self.sigma1(x))
-        sigma = F.relu(self.sigma2(sigma))
-        sigma = F.relu(self.sigma3(sigma))
+        # sigma = F.relu(self.sigma2(sigma))
+        # sigma = F.relu(self.sigma3(sigma))
         sigma = F.softplus(self.sigma4(sigma)) + 0.0000001      # avoid 0
         x = F.relu(self.v1(x))
-        x = F.relu(self.v2(x))
-        x = F.relu(self.v3(x))
+        # x = F.relu(self.v2(x))
+        # x = F.relu(self.v3(x))
         values = F.relu(self.v4(x))
         return mu, sigma, values
 
