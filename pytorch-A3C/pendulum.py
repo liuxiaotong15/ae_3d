@@ -29,7 +29,7 @@ class PendulumEnv(gym.Env):
 
     side_len = 5
     stt_sz = 50
-    max_atoms_count = 3
+    max_atoms_count = 2
     
     global_min_energy = [0] * 80
     std_ans_morse_clst = \
@@ -115,7 +115,7 @@ class PendulumEnv(gym.Env):
         self.state_atoms.set_calculator(morse_calc)
         next_engy = self.state_atoms.get_potential_energy()
         reward = orig_engy - next_engy
-        if reward < 0.9:
+        if reward < 0.01:
             done = True
         reward = max(0, reward)
         if len(self.state_atoms) == self.max_atoms_count:
