@@ -14,6 +14,7 @@ from shared_adam import SharedAdam
 import gym
 import math, os, time
 import numpy as np
+import numpy.ma as ma
 os.environ["OMP_NUM_THREADS"] = "1"
 
 UPDATE_GLOBAL_ITER = 5
@@ -163,11 +164,16 @@ class Worker(mp.Process):
                 s1 = np.fabs(s[0] - a[0])
                 s1 += np.fabs(s[1] - a[1])
                 s1 += np.fabs(s[2] - a[2])
-                s1 += np.fabs(s[3] - v)
-                # print(s1.shape, v, )
-                result1 = np.where(s1 == np.amin(s1))
+                s2 = np.fabs(s[3] - v)
+                masked_array = ma.masked_array(s1, s2>0.01)
+                result1 = ma.where(masked_array == masked_array.min())
+                # result1 = np.where(s1 == np.amin(s1) and (s2 < 0.01))
                 # xyz in small action
+                x, y, z = 0, 0, 0
+                if result1[0].shape[0] == 0:
+                    result1 = np.where(s2 == np.amin(s2))
                 x, y, z = result1[0][0], result1[1][0], result1[2][0]
+                # print(x, y, z, s[3][x][y][z])
                 # cal the delta x, y, z
                 # action = s[0, max(0, x-1):min(x+2, stt_sz), max(0, y-1):min(y+2, stt_sz), max(0, z-1):min(z+2, stt_sz)]
                 # print(action.shape)
