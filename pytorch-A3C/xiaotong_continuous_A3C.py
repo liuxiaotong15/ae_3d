@@ -114,6 +114,10 @@ class Net(nn.Module):
         total_loss = (a_loss + c_loss).mean()
         if s_max > 0:
             total_loss += s_max
+        if a[0][0] < 0:
+            total_loss -= a[0][0]
+        if a[0][1] < 0:
+            total_loss -= a[0][1]
         return total_loss
 
 
