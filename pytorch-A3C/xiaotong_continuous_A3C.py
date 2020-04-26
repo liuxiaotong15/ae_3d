@@ -122,15 +122,15 @@ class Net(nn.Module):
         m = self.distribution(mu, sigma)
         log_prob = m.log_prob(a)
         entropy = 0.5 + 0.5 * math.log(2 * math.pi) + torch.log(m.scale)  # exploration
-        exp_v = log_prob * td.detach() + 0.005 * entropy
+        exp_v = log_prob * td.detach() + 0.003 * entropy
         a_loss = -exp_v
         total_loss = (a_loss + c_loss).mean()
-        for a_v in a[0]:
-            s_max = a_v - torch.max(s)
-            if s_max > 0:
-                total_loss += s_max
-            if a_v < 0:
-                total_loss -= a_v
+        # for a_v in a[0]:
+        #     s_max = a_v - torch.max(s)
+        #     if s_max > 0:
+        #         total_loss += s_max
+        #     if a_v < 0:
+        #         total_loss -= a_v
         return total_loss
 
 
