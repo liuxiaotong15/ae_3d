@@ -48,9 +48,9 @@ class Net(nn.Module):
         # test_3
         self.conv3d1 = nn.Conv3d(in_channels=4, out_channels=8, kernel_size=7, stride=2, padding=3)
         # 4, 25, 25, 25
-        self.conv3d2 = nn.Conv3d(8, 2, 7, stride=2, padding=3)
+        self.conv3d2 = nn.Conv3d(8, 4, 7, stride=2, padding=3)
         # 2, 13, 13, 13
-        self.conv3d3 = nn.Conv3d(2, 2, 3, stride=3, padding=2)
+        self.conv3d3 = nn.Conv3d(4, 2, 3, stride=3, padding=2)
 
         self.fltt = 2*5*5*5
 
