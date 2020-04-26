@@ -45,7 +45,7 @@ class Net(nn.Module):
         # self.conv3d3 = nn.Conv3d(2, 2, 2, stride=2, padding=0)
 
         # test_3
-        self.conv3d1 = nn.Conv3d(in_channels=2, out_channels=8, kernel_size=7, stride=2, padding=3)
+        self.conv3d1 = nn.Conv3d(in_channels=4, out_channels=8, kernel_size=7, stride=2, padding=3)
         # 4, 25, 25, 25
         self.conv3d2 = nn.Conv3d(8, 2, 7, stride=2, padding=3)
         # 2, 13, 13, 13
@@ -56,11 +56,11 @@ class Net(nn.Module):
         self.mu1 = nn.Linear(self.fltt, 256)
         self.mu2 = nn.Linear(256, 128)
         self.mu3 = nn.Linear(128, 64)
-        self.mu4 = nn.Linear(256, 2)
+        self.mu4 = nn.Linear(256, 4)
         self.sigma1 = nn.Linear(self.fltt, 256)
         self.sigma2 = nn.Linear(256, 128)
         self.sigma3 = nn.Linear(128, 64)
-        self.sigma4 = nn.Linear(256, 2)
+        self.sigma4 = nn.Linear(256, 4)
         self.v1 = nn.Linear(self.fltt, 256)
         self.v2 = nn.Linear(256, 64)
         self.v3 = nn.Linear(64, 32)
@@ -82,7 +82,7 @@ class Net(nn.Module):
         mu = F.relu(self.mu1(x))
         # mu = F.relu(self.mu2(mu))
         # mu = F.relu(self.mu3(mu))
-        mu = F.softplus(self.mu4(mu)) + 0.000001
+        mu = F.softplus(self.mu4(mu)) + 0.0000001
         sigma = F.relu(self.sigma1(x))
         # sigma = F.relu(self.sigma2(sigma))
         # sigma = F.relu(self.sigma3(sigma))
@@ -96,7 +96,7 @@ class Net(nn.Module):
     def choose_action(self, s):
         self.training = False
         mu, sigma, _ = self.forward(s)
-        m = self.distribution(mu.view(2, ).data, sigma.view(2, ).data)
+        m = self.distribution(mu.view(4, ).data, sigma.view(4, ).data)
         return m.sample().numpy()
 
     def loss_func(self, s, a, v_t):
@@ -110,14 +110,13 @@ class Net(nn.Module):
         entropy = 0.5 + 0.5 * math.log(2 * math.pi) + torch.log(m.scale)  # exploration
         exp_v = log_prob * td.detach() + 0.003 * entropy
         a_loss = -exp_v
-        s_max = a[0][-1] - torch.max(s)
         total_loss = (a_loss + c_loss).mean()
-        if s_max > 0:
-            total_loss += s_max
-        if a[0][0] < 0:
-            total_loss -= a[0][0]
-        if a[0][1] < 0:
-            total_loss -= a[0][1]
+        for a_v in a[0]:
+            s_max = a_v - torch.max(s)
+            if s_max > 0:
+                total_loss += s_max
+            if a_v < 0:
+                total_loss -= a_v
         return total_loss
 
 
@@ -144,9 +143,9 @@ class Worker(mp.Process):
             r_history = []
             ep_r = 0.
             for t in range(MAX_EP_STEP):
-                if self.name == 'w0':
-                    print('std max: ', np.amax(s[0]), 'min: ', np.amin(s[0]), 'mean: ', np.average(s[0]), 'atoms cnt: ', t+1)
-                    print('mean max: ', np.amax(s[1]), 'min: ', np.amin(s[1]), 'mean: ', np.average(s[1]), 'atoms cnt: ', t+1)
+                # if self.name == 'w0':
+                #     print('std max: ', np.amax(s[0]), 'min: ', np.amin(s[0]), 'mean: ', np.average(s[0]), 'atoms cnt: ', t+1)
+                #     print('mean max: ', np.amax(s[1]), 'min: ', np.amin(s[1]), 'mean: ', np.average(s[1]), 'atoms cnt: ', t+1)
                 #     self.env.render()
                 a = self.lnet.choose_action(v_wrap(s[None, :]))
                 
@@ -159,10 +158,12 @@ class Worker(mp.Process):
                 #     1/0
                 # v = a.clip(0, 1)
                 # print('output a,v is: ', a, v)
-                std = a[0]
-                v = a[1]
-                s1 = np.fabs(s[0] - std)
-                s1 += np.fabs(s[1] - v)
+                # std = a[0]
+                v = a[-1]
+                s1 = np.fabs(s[0] - a[0])
+                s1 += np.fabs(s[1] - a[1])
+                s1 += np.fabs(s[2] - a[2])
+                s1 += np.fabs(s[3] - v)
                 # print(s1.shape, v, )
                 result1 = np.where(s1 == np.amin(s1))
                 # xyz in small action
