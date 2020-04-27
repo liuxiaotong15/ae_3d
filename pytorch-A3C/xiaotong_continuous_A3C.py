@@ -122,7 +122,7 @@ class Net(nn.Module):
         m = self.distribution(mu, sigma)
         log_prob = m.log_prob(a)
         entropy = 0.5 + 0.5 * math.log(2 * math.pi) + torch.log(m.scale)  # exploration
-        exp_v = log_prob * td.detach() + 0.003 * entropy
+        exp_v = log_prob * td.detach() + 0.005 * entropy
         a_loss = -exp_v
         total_loss = (a_loss + c_loss).mean()
         
@@ -237,7 +237,7 @@ class Worker(mp.Process):
                 if total_step % UPDATE_GLOBAL_ITER == 0 or done:  # update global and assign to local net
                     # sync
                     push_and_pull(self.opt, self.lnet, self.gnet, done, s_, buffer_s, buffer_a, buffer_r, GAMMA)
-                    if len(buffer_a) > 100:
+                    if len(buffer_a) > 0:
                         buffer_s, buffer_a, buffer_r = [], [], []
 
                     if done:  # done and print information
