@@ -29,7 +29,7 @@ class PendulumEnv(gym.Env):
 
     side_len = 5
     stt_sz = 50
-    max_atoms_count = 3
+    max_atoms_count = 5
     
     global_min_energy = [0] * 80
     std_ans_morse_clst = \
@@ -69,7 +69,7 @@ class PendulumEnv(gym.Env):
             volume[0][i][j][k] = np.std(np.array(dis_lst))
             volume[1][i][j][k] = np.amax(np.array(dis_lst))
             volume[2][i][j][k] = np.amin(np.array(dis_lst))
-        volume[-1] /= np.amax(volume[-1])
+        # volume[-1] /= np.amax(volume[-1])
         # print('max: ', np.amax(volume), 'min: ', np.amin(volume), 'mean: ', np.average(volume), 'atoms cnt: ', len(at))
         return volume
 

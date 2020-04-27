@@ -90,10 +90,10 @@ class Net(nn.Module):
         mu = F.relu(self.mu1(x))
         # mu = F.relu(self.mu2(mu))
         # mu = F.relu(self.mu3(mu))
-        mu = F.sigmoid(self.mu4(mu))
+        mu = F.softplus(self.mu4(mu))
 
         mu_pre = F.relu(self.mu_pre1(x))
-        mu_pre = F.sigmoid(self.mu_pre4(mu_pre))
+        mu_pre = F.softplus(self.mu_pre4(mu_pre))
 
         sigma = F.relu(self.sigma1(x))
         # sigma = F.relu(self.sigma2(sigma))
@@ -125,12 +125,14 @@ class Net(nn.Module):
         exp_v = log_prob * td.detach() + 0.003 * entropy
         a_loss = -exp_v
         total_loss = (a_loss + c_loss).mean()
-        # for a_v in a[0]:
-        #     s_max = a_v - torch.max(s)
-        #     if s_max > 0:
-        #         total_loss += s_max
-        #     if a_v < 0:
-        #         total_loss -= a_v
+        if s.shape[0] != 1:
+            print('must handle batch input...')
+            1/0
+        for a_idx in range(a.shape[1]):
+            if a[0][a_idx] > torch.max(s[0][a_idx]):
+                total_loss += (a[0][a_idx] - torch.max(s[0][a_idx]))
+            if a[0][a_idx] < torch.min(s[0][a_idx]):
+                total_loss += (torch.min(s[0][a_idx]) - a[0][a_idx])
         return total_loss
 
 
