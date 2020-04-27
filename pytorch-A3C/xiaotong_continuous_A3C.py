@@ -54,24 +54,24 @@ class Net(nn.Module):
 
         self.fltt = 2*5*5*5
 
-        self.mu1 = nn.Linear(self.fltt, 256)
+        self.mu1 = nn.Linear(self.fltt, 128)
         self.mu2 = nn.Linear(256, 128)
         self.mu3 = nn.Linear(128, 64)
-        self.mu4 = nn.Linear(256, 1)
+        self.mu4 = nn.Linear(128, 1)
 
-        self.mu_pre1 = nn.Linear(self.fltt, 256)
+        self.mu_pre1 = nn.Linear(self.fltt, 128)
         self.mu_pre2 = nn.Linear(256, 128)
         self.mu_pre3 = nn.Linear(128, 64)
-        self.mu_pre4 = nn.Linear(256, 3)
+        self.mu_pre4 = nn.Linear(128, 3)
 
-        self.sigma1 = nn.Linear(self.fltt, 256)
+        self.sigma1 = nn.Linear(self.fltt, 128)
         self.sigma2 = nn.Linear(256, 128)
         self.sigma3 = nn.Linear(128, 64)
-        self.sigma4 = nn.Linear(256, 4)
-        self.v1 = nn.Linear(self.fltt, 256)
+        self.sigma4 = nn.Linear(128, 4)
+        self.v1 = nn.Linear(self.fltt, 128)
         self.v2 = nn.Linear(256, 64)
         self.v3 = nn.Linear(64, 32)
-        self.v4 = nn.Linear(256, 1)
+        self.v4 = nn.Linear(128, 1)
         set_init([self.conv3d1, self.conv3d2, self.conv3d3,
             self.mu1, self.mu2, self.mu3, self.mu4,
             self.mu_pre1, self.mu_pre2, self.mu_pre3, self.mu_pre4,
@@ -177,10 +177,12 @@ class Worker(mp.Process):
                 # v = a.clip(0, 1)
                 # print('output a,v is: ', a, v)
                 # std = a[0]
+
+                # TODO: a[0, 1, 2] can be used as not the abs value of the s[0,1,2], but the ratio
                 v = a[-1]
-                s1 = np.fabs(s[0] - a[0])
-                s1 += np.fabs(s[1] - a[1])
-                s1 += np.fabs(s[2] - a[2])
+                s1 = np.power(s[0] - a[0], 2)
+                s1 += np.power(s[1] - a[1], 2)
+                s1 += np.power(s[2] - a[2], 2)
                 s2 = np.fabs(s[3] - v)
                 masked_array = ma.masked_array(s1, s2>0.01)
                 result1 = ma.where(masked_array == masked_array.min())
