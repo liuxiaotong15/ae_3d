@@ -62,12 +62,12 @@ class Net(nn.Module):
         self.mu_pre1 = nn.Linear(self.fltt, 128)
         self.mu_pre2 = nn.Linear(256, 128)
         self.mu_pre3 = nn.Linear(128, 64)
-        self.mu_pre4 = nn.Linear(128, 3)
+        self.mu_pre4 = nn.Linear(128, 1)
 
         self.sigma1 = nn.Linear(self.fltt, 128)
         self.sigma2 = nn.Linear(256, 128)
         self.sigma3 = nn.Linear(128, 64)
-        self.sigma4 = nn.Linear(128, 4)
+        self.sigma4 = nn.Linear(128, 2)
         self.v1 = nn.Linear(self.fltt, 128)
         self.v2 = nn.Linear(256, 64)
         self.v3 = nn.Linear(64, 32)
@@ -110,7 +110,7 @@ class Net(nn.Module):
     def choose_action(self, s):
         self.training = False
         mu, sigma, _ = self.forward(s)
-        m = self.distribution(mu.view(4, ).data, sigma.view(4, ).data)
+        m = self.distribution(mu.view(2, ).data, sigma.view(2, ).data)
         return m.sample().numpy()
 
     def loss_func(self, s, a, v_t):
@@ -181,8 +181,8 @@ class Worker(mp.Process):
                 # TODO: a[0, 1, 2] can be used as not the abs value of the s[0,1,2], but the ratio
                 v = a[-1]
                 s1 = np.power(s[0] - a[0], 2)
-                s1 += np.power(s[1] - a[1], 2)
-                s1 += np.power(s[2] - a[2], 2)
+                # s1 += np.power(s[1] - a[1], 2)
+                # s1 += np.power(s[2] - a[2], 2)
                 s2 = np.fabs(s[3] - v)
                 masked_array = ma.masked_array(s1, s2>0.01)
                 result1 = ma.where(masked_array == masked_array.min())
@@ -237,7 +237,8 @@ class Worker(mp.Process):
                 if total_step % UPDATE_GLOBAL_ITER == 0 or done:  # update global and assign to local net
                     # sync
                     push_and_pull(self.opt, self.lnet, self.gnet, done, s_, buffer_s, buffer_a, buffer_r, GAMMA)
-                    buffer_s, buffer_a, buffer_r = [], [], []
+                    if len(buffer_a) > 100:
+                        buffer_s, buffer_a, buffer_r = [], [], []
 
                     if done:  # done and print information
                         g_ep_ret = record(self.g_ep, self.g_ep_r, ep_r, self.res_queue, self.name, r_history, self.g_ep_max_r)
