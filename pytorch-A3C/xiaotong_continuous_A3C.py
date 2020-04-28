@@ -67,7 +67,7 @@ class Net(nn.Module):
         self.sigma1 = nn.Linear(self.fltt, 128)
         self.sigma2 = nn.Linear(256, 128)
         self.sigma3 = nn.Linear(128, 64)
-        self.sigma4 = nn.Linear(128, 2)
+        self.sigma4 = nn.Linear(128, 1)
         self.v1 = nn.Linear(self.fltt, 128)
         self.v2 = nn.Linear(256, 64)
         self.v3 = nn.Linear(64, 32)
@@ -92,8 +92,8 @@ class Net(nn.Module):
         # mu = F.relu(self.mu3(mu))
         mu = torch.sigmoid(self.mu4(mu))
 
-        mu_pre = F.relu(self.mu_pre1(x))
-        mu_pre = torch.sigmoid(self.mu_pre4(mu_pre))
+        # mu_pre = F.relu(self.mu_pre1(x))
+        # mu_pre = torch.sigmoid(self.mu_pre4(mu_pre))
         sigma = F.relu(self.sigma1(x))
         # sigma = F.relu(self.sigma2(sigma))
         # sigma = F.relu(self.sigma3(sigma))
@@ -103,13 +103,13 @@ class Net(nn.Module):
         # x = F.relu(self.v3(x))
         values = F.relu(self.v4(x))
 
-        mu = torch.cat((mu_pre, mu), 1)
+        # mu = torch.cat((mu_pre, mu), 1)
         return mu, sigma, values
 
     def choose_action(self, s):
         self.training = False
         mu, sigma, _ = self.forward(s)
-        m = self.distribution(mu.view(2, ).data, sigma.view(2, ).data)
+        m = self.distribution(mu.view(1, ).data, sigma.view(1, ).data)
         return m.sample().numpy()
 
     def loss_func(self, s, a, v_t):
@@ -182,7 +182,8 @@ class Worker(mp.Process):
 
                 # TODO: a[0, 1, 2] can be used as not the abs value of the s[0,1,2], but the ratio
                 v = a[-1]
-                s1 = np.power(s[0] - a[0], 2)
+                s1 = np.power(s[0], 2)
+                # s1 = np.power(s[0] - a[0], 2)
                 # s1 += np.power(s[1] - a[1], 2)
                 # s1 += np.power(s[2] - a[2], 2)
                 s2 = np.fabs(s[3] - v)
