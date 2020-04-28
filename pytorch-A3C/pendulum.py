@@ -65,7 +65,7 @@ class PendulumEnv(gym.Env):
                 x, y, z = i/voxel_side_cnt * side_len, j/voxel_side_cnt * side_len, k/voxel_side_cnt * side_len
                 pow_sum = (x-at[idx].position[0])**2 + (y-at[idx].position[1])**2 + (z-at[idx].position[2])**2
                 volume[-1][i][j][k] += math.exp(-1*pow_sum/(2*sigma**2))
-                dis_lst.append(math.sqrt(pow_sum))
+                dis_lst.append(math.exp(-1*pow_sum/(2*sigma**2)))
             volume[0][i][j][k] = np.std(np.array(dis_lst))
             volume[1][i][j][k] = np.amax(np.array(dis_lst))
             volume[2][i][j][k] = np.amin(np.array(dis_lst))
