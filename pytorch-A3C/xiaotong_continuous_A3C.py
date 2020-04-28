@@ -122,10 +122,11 @@ class Net(nn.Module):
         m = self.distribution(mu, sigma)
         log_prob = m.log_prob(a)
         entropy = 0.5 + 0.5 * math.log(2 * math.pi) + torch.log(torch.clamp(m.scale, 1e-10))  # exploration
+        print('entropy: ', entropy)
         exp_v = log_prob * td.detach() + 0.005 * entropy
         a_loss = -exp_v
         total_loss = (a_loss + c_loss).mean()
-        
+        print('total_loss: ', total_loss)
         # for s_idx in range(s.shape[0]):
         #     for a_idx in range(a.shape[1]):
         #         weight = 1.0
