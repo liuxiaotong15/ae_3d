@@ -124,7 +124,7 @@ class Net(nn.Module):
         print('entropy: ', entropy)
         print('log_prob: ', log_prob)
         print('td: ', td.detach(), 'v_t: ', v_t, 'values: ', values, 'mu: ', mu, 'sigma: ', sigma)
-        exp_v = log_prob * td.detach() + entropy # 0.005 * entropy
+        exp_v = log_prob * td.detach() + 0.005 * entropy
         a_loss = -exp_v
         total_loss = (a_loss + c_loss).mean()
         print('total_loss: ', total_loss)
