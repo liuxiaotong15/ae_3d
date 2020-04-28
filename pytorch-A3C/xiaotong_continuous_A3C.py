@@ -122,6 +122,8 @@ class Net(nn.Module):
         log_prob = m.log_prob(a)
         entropy = 0.5 + 0.5 * math.log(2 * math.pi) + torch.log(torch.clamp(m.scale, 1e-10))  # exploration
         print('entropy: ', entropy)
+        print('log_prob: ', log_prob)
+        print('td: ', td.detach())
         exp_v = log_prob * td.detach() + 0.005 * entropy
         a_loss = -exp_v
         total_loss = (a_loss + c_loss).mean()
