@@ -162,9 +162,9 @@ class Worker(mp.Process):
             r_history = []
             ep_r = 0.
             for t in range(MAX_EP_STEP):
-                # if self.name == 'w0':
-                #     print('std max: ', np.amax(s[0]), 'min: ', np.amin(s[0]), 'mean: ', np.average(s[0]), 'atoms cnt: ', t+1)
-                #     print('mean max: ', np.amax(s[1]), 'min: ', np.amin(s[1]), 'mean: ', np.average(s[1]), 'atoms cnt: ', t+1)
+                if self.name == 'w0':
+                    print('std max: ', np.amax(s[0]), 'min: ', np.amin(s[0]), 'mean: ', np.average(s[0]), 'atoms cnt: ', t+1)
+                    print('mean max: ', np.amax(s[1]), 'min: ', np.amin(s[1]), 'mean: ', np.average(s[1]), 'atoms cnt: ', t+1)
                 #     self.env.render()
                 a = self.lnet.choose_action(v_wrap(s[None, :]))
                 
