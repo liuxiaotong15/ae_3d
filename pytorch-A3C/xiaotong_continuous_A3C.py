@@ -101,7 +101,7 @@ class Net(nn.Module):
         x = F.relu(self.v1(x))
         # x = F.relu(self.v2(x))
         # x = F.relu(self.v3(x))
-        values = F.relu(self.v4(x))
+        values = F.softplus(self.v4(x)) + 0.0000001
 
         # mu = torch.cat((mu_pre, mu), 1)
         return mu, sigma, values
