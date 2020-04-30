@@ -98,10 +98,10 @@ class Net(nn.Module):
         # sigma = F.relu(self.sigma2(sigma))
         # sigma = F.relu(self.sigma3(sigma))
         sigma = F.softplus(self.sigma4(sigma)) + 0.0000001      # avoid 0
-        x = F.relu(self.v1(x))
+        values = F.relu(self.v1(x))
         # x = F.relu(self.v2(x))
         # x = F.relu(self.v3(x))
-        values = F.softplus(self.v4(x)) + 0.0000001
+        values = torch.sigmoid(self.v4(values))
 
         # mu = torch.cat((mu_pre, mu), 1)
         return mu, sigma, values
@@ -166,6 +166,8 @@ class Worker(mp.Process):
                 if self.name == 'w0':
                     print('std max: ', np.amax(s[0]), 'min: ', np.amin(s[0]), 'mean: ', np.average(s[0]), 'atoms cnt: ', t+1)
                     print('mean max: ', np.amax(s[1]), 'min: ', np.amin(s[1]), 'mean: ', np.average(s[1]), 'atoms cnt: ', t+1)
+                    # print('model.state_dict().keys(): ', self.lnet.state_dict().keys())
+                    # print('model.mu4.weight: ', self.lnet.mu4.weight)
                 #     self.env.render()
                 a = self.lnet.choose_action(v_wrap(s[None, :]))
                 
@@ -225,7 +227,7 @@ class Worker(mp.Process):
                 # return np.array([x/stt_sz, y/stt_sz, z/stt_sz])
 
 
-                s_, r, done, _ = self.env.step(np.array([(x+dx)/stt_sz, (y+dy)/stt_sz, (z+dz)/stt_sz]))
+                s_, r, done, _ = self.env.step(np.array([(x+dx/3)/stt_sz, (y+dy/3)/stt_sz, (z+dz/3)/stt_sz]))
                 # s_, r, done, _ = self.env.step(a.clip(LOW_A, HIGH_A))
                 if t == MAX_EP_STEP - 1:
                     done = True

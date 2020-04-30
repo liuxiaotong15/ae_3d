@@ -105,52 +105,49 @@ class PendulumEnv(gym.Env):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
     
+    # depreciated: old reward function which make relations with the differential of the energy...
+    # def step(self, u):
+    #     done = False
+    #     side_len = self.side_len
+    #     x, y, z = u[0], u[1], u[2]
+    #     # DONE: 2. add new atom to state
+    #     morse_calc = MorsePotential()
+    #     self.state_atoms.set_calculator(morse_calc)
+    #     orig_engy = self.state_atoms.get_potential_energy()
+    #     self.state_atoms.append(Atom('Au', ( side_len * x, side_len * y, side_len * z )))
+    #     self.state_voxels = self.atoms2voxels(self.state_atoms)
+    #     # DONE: 3. calculate the reward of the action
+    #     self.state_atoms.set_calculator(morse_calc)
+    #     next_engy = self.state_atoms.get_potential_energy()
+    #     reward = orig_engy - next_engy
+    #     if reward < 0.5:
+    #         done = True
+    #     reward = max(0, reward)
+    #     if len(self.state_atoms) == self.max_atoms_count:
+    #         done = True
+    #     msg = 'test ok...'
+    #     return self.state_voxels, reward, done, msg
+
     def step(self, u):
         done = False
         side_len = self.side_len
         x, y, z = u[0], u[1], u[2]
         # DONE: 2. add new atom to state
         morse_calc = MorsePotential()
-        self.state_atoms.set_calculator(morse_calc)
-        orig_engy = self.state_atoms.get_potential_energy()
         self.state_atoms.append(Atom('Au', ( side_len * x, side_len * y, side_len * z )))
         self.state_voxels = self.atoms2voxels(self.state_atoms)
         # DONE: 3. calculate the reward of the action
+        atom_cnt = len(self.state_atoms)
         self.state_atoms.set_calculator(morse_calc)
-        next_engy = self.state_atoms.get_potential_energy()
-        reward = orig_engy - next_engy
-        if reward < 0.5:
-            done = True
-        reward = max(0, reward)
-        if len(self.state_atoms) == self.max_atoms_count:
+        engy = self.state_atoms.get_potential_energy()
+        
+        # reward is between 0-1, so sigmoid as activation func is enough
+        reward = (self.std_ans_morse_clst[atom_cnt-2] - engy)/(self.std_ans_morse_clst[atom_cnt-2] - self.std_ans_morse_clst[atom_cnt-1])
+
+        if atom_cnt == self.max_atoms_count or reward < 0:
             done = True
         msg = 'test ok...'
         return self.state_voxels, reward, done, msg
-        # return np.random.rand(self.state_shap), reward, done, msg
-
-        # th, thdot = self.state # th := theta
-
-        # g = self.g
-        # m = self.m
-        # l = self.l
-        # dt = self.dt
-
-        # u = np.clip(u, -self.max_torque, self.max_torque)[0]
-        # self.last_u = u # for rendering
-        # costs = angle_normalize(th)**2 + .1*thdot**2 + .001*(u**2)
-
-        # newthdot = thdot + (-3*g/(2*l) * np.sin(th + np.pi) + 3./(m*l**2)*u) * dt
-        # newth = th + newthdot*dt
-        # newthdot = np.clip(newthdot, -self.max_speed, self.max_speed) #pylint: disable=E1111
-
-        # self.state = np.array([newth, newthdot])
-        # return self._get_obs(), -costs, False, {}
-
-    # def reset(self):
-    #     high = np.array([np.pi, 1])
-    #     self.state = self.np_random.uniform(low=-high, high=high)
-    #     self.last_u = None
-    #     return self._get_obs()
 
     def _get_obs(self):
         theta, thetadot = self.state
