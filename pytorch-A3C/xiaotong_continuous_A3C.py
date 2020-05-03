@@ -149,7 +149,7 @@ class Worker(mp.Process):
         self.g_ep_max_r = global_max_ep_r
         self.gnet, self.opt = gnet, opt
         self.lnet = Net(N_S, N_A)           # local network
-        # self.lnet.load_state_dict(torch.load('./ep_11000.pth'))
+        self.lnet.load_state_dict(torch.load('./ep_10000.pth'))
         # self.env = gym.make('Pendulum-v0').unwrapped
         self.env = env 
 
@@ -261,7 +261,7 @@ class Worker(mp.Process):
 if __name__ == "__main__":
     mp.set_start_method('forkserver')
     gnet = Net(N_S, N_A)        # global network
-    # gnet.load_state_dict(torch.load('./ep_11000.pth'))
+    gnet.load_state_dict(torch.load('./ep_10000.pth'))
     gnet.share_memory()         # share the global parameters in multiprocessing
     opt = SharedAdam(gnet.parameters(), lr=1e-5, betas=(0.95, 0.999), weight_decay=1e-3)  # global optimizer
     global_ep, global_ep_r, res_queue = mp.Value('i', 0), mp.Value('d', 0.), mp.Queue()

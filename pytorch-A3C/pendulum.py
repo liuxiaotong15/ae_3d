@@ -29,7 +29,7 @@ class PendulumEnv(gym.Env):
 
     side_len = 5
     stt_sz = 50
-    max_atoms_count = 5
+    max_atoms_count = 7
     
     global_min_energy = [0] * 80
     std_ans_morse_clst = \
