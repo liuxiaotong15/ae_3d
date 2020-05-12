@@ -184,6 +184,7 @@ class Worker(mp.Process):
 
                 # TODO: a[0, 1, 2] can be used as not the abs value of the s[0,1,2], but the ratio
                 v = a[-1]
+                xyz = np.array([0, 0, 0])
                 if v>=0:
                     s1 = np.power(s[0], 2)
                     # s1 = np.power(s[0] - a[0], 2)
@@ -227,10 +228,11 @@ class Worker(mp.Process):
                     # return np.array([x2/stt_sz, y2/stt_sz, z2/stt_sz])
                     # return np.array([x/stt_sz, y/stt_sz, z/stt_sz])
 
-
-                    s_, r, done, _ = self.env.step(np.array([(x+dx/3)/stt_sz, (y+dy/3)/stt_sz, (z+dz/3)/stt_sz]))
+                    xyz = np.array([(x+dx/3)/stt_sz, (y+dy/3)/stt_sz, (z+dz/3)/stt_sz])
+                    s_, r, done, _ = self.env.step(xyz)
                 else:
-                    s_, r, done, _ = self.env.step(np.array([0.5, 0.5, 0.5]))
+                    xyz = np.array([0.5, 0.5, 0.5])
+                    s_, r, done, _ = self.env.step(xyz)
                 # s_, r, done, _ = self.env.step(a.clip(LOW_A, HIGH_A))
                 if t == MAX_EP_STEP - 1:
                     done = True
@@ -240,7 +242,7 @@ class Worker(mp.Process):
                 # buffer_r.append((r+8.1)/8.1)    # normalize
                 buffer_r.append(r)
                 # r_history.append((r, a.clip(LOW_A, HIGH_A)))
-                r_history.append((r, np.array([(x+dx)/stt_sz, (y+dy)/stt_sz, (z+dz)/stt_sz]), a))
+                r_history.append((r, xyz), a))
 
                 if total_step % UPDATE_GLOBAL_ITER == 0 or done:  # update global and assign to local net
                     # sync
