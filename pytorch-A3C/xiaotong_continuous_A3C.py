@@ -91,7 +91,7 @@ class Net(nn.Module):
         # mu = F.relu(self.mu2(mu))
         # mu = F.relu(self.mu3(mu))
         # mu = torch.sigmoid(self.mu4(mu))
-        mu = self.mu4(mu)
+        mu = F.softplus(self.mu4(mu))
         # mu_pre = F.relu(self.mu_pre1(x))
         # mu_pre = torch.sigmoid(self.mu_pre4(mu_pre))
         sigma = F.relu(self.sigma1(x))

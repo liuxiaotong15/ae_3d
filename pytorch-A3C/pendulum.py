@@ -69,7 +69,7 @@ class PendulumEnv(gym.Env):
             volume[0][i][j][k] = np.std(np.array(dis_lst))
             volume[1][i][j][k] = np.amax(np.array(dis_lst))
             volume[2][i][j][k] = np.amin(np.array(dis_lst))
-        np.clip(volume[-1], 0, 1)
+        np.clip(volume[-1], 0, 2)
         # volume[-1] /= np.amax(volume[-1])
         # volume[-1] = 1/(1+np.exp(-10*(volume[-1]-0.5)))
         if np.amax(volume[0]) > 0:
