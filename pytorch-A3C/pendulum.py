@@ -144,7 +144,8 @@ class PendulumEnv(gym.Env):
         engy = self.state_atoms.get_potential_energy()
         
         # reward is between 0-1, so sigmoid as activation func is enough
-        reward = (self.std_ans_morse_clst[atom_cnt-2] - engy)/(self.std_ans_morse_clst[atom_cnt-2] - self.std_ans_morse_clst[atom_cnt-1])
+        # reward = (self.std_ans_morse_clst[atom_cnt-2] - engy)/(self.std_ans_morse_clst[atom_cnt-2] - self.std_ans_morse_clst[atom_cnt-1])
+        reward = (engy)/(self.std_ans_morse_clst[atom_cnt-1])
 
         if atom_cnt == self.max_atoms_count or reward < 0:
             done = True
