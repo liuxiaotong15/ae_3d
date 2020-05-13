@@ -183,7 +183,7 @@ class Worker(mp.Process):
                 # std = a[0]
 
                 # TODO: a[0, 1, 2] can be used as not the abs value of the s[0,1,2], but the ratio
-                v = a[-1]
+                v = a[-1] * (t+1)
                 xyz = np.array([0, 0, 0])
                 if v>=0:
                     s1 = np.power(s[0], 2)
