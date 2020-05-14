@@ -29,7 +29,7 @@ class PendulumEnv(gym.Env):
 
     side_len = 5
     stt_sz = 50
-    max_atoms_count = 7
+    max_atoms_count = 10
     
     global_min_energy = [0] * 80
     std_ans_morse_clst = \
@@ -49,7 +49,7 @@ class PendulumEnv(gym.Env):
     # state_shap = 250
     def atoms2voxels(self, at):
         # 50*50*50 voxel returned
-        sigma = 0.5
+        sigma = 0.6
         voxel_side_cnt = self.voxel_side_cnt
         side_len = self.side_len
         # volume = np.random.rand(voxel_side_cnt, voxel_side_cnt, voxel_side_cnt)
