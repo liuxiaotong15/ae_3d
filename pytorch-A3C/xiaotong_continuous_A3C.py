@@ -186,7 +186,7 @@ class Worker(mp.Process):
                 v1 = a[1] * (t+1)
                 v2 = a[2] * (t+1)
                 # v3 = a[3] * (t+1)
-                v = v3
+                v = a[-1] * (t+1)
                 xyz = np.array([0, 0, 0])
                 if v>=0:
                     # s1 = np.power(s[0], 2)
