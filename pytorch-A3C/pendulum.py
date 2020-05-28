@@ -43,7 +43,7 @@ class PendulumEnv(gym.Env):
         -331.588748, -336.121753, -341.266253, -346.610834, -351.472365, -356.372708, -361.727086, -367.0722648, -372.832290, -378.333471, #71-80
     ]
     
-    state_voxels = np.zeros((4, stt_sz, stt_sz, stt_sz))
+    state_voxels = np.zeros((3, stt_sz, stt_sz, stt_sz))
     state_atoms = Atoms()
     voxel_side_cnt = stt_sz
     # state_shap = 250
@@ -52,11 +52,11 @@ class PendulumEnv(gym.Env):
         sigma_1 = 0.5
         sigma_2 = 0.6
         sigma_3 = 0.7
-        sigma_4 = 0.8
+        # sigma_4 = 0.8
         voxel_side_cnt = self.voxel_side_cnt
         side_len = self.side_len
         # volume = np.random.rand(voxel_side_cnt, voxel_side_cnt, voxel_side_cnt)
-        volume = np.zeros((4, voxel_side_cnt, voxel_side_cnt, voxel_side_cnt), dtype=float)
+        volume = np.zeros((3, voxel_side_cnt, voxel_side_cnt, voxel_side_cnt), dtype=float)
         for i, j, k in itertools.product(range(voxel_side_cnt),
                 range(voxel_side_cnt),
                 range(voxel_side_cnt)):
@@ -70,7 +70,7 @@ class PendulumEnv(gym.Env):
                 volume[0][i][j][k] += math.exp(-1*pow_sum/(2*sigma_1**2))
                 volume[1][i][j][k] += math.exp(-1*pow_sum/(2*sigma_2**2))
                 volume[2][i][j][k] += math.exp(-1*pow_sum/(2*sigma_3**2))
-                volume[3][i][j][k] += math.exp(-1*pow_sum/(2*sigma_4**2))
+                # volume[3][i][j][k] += math.exp(-1*pow_sum/(2*sigma_4**2))
                 # dis_lst.append(math.exp(-1*pow_sum/(2*sigma**2)))
             # volume[0][i][j][k] = np.std(np.array(dis_lst))
             # volume[1][i][j][k] = np.amax(np.array(dis_lst))
@@ -102,9 +102,9 @@ class PendulumEnv(gym.Env):
         # low = np.zeros((250,))
         
         # high = np.array([1., 1., self.max_speed], dtype=np.float32)
-        high = np.ones((4, stt_sz, stt_sz, stt_sz)) * self.max_atoms_count
-        low = np.zeros((4, stt_sz, stt_sz, stt_sz))
-        self.action_space = spaces.Box(low=0,  high=self.max_atoms_count , shape=(4,), dtype=np.float32)
+        high = np.ones((3, stt_sz, stt_sz, stt_sz)) * self.max_atoms_count
+        low = np.zeros((3, stt_sz, stt_sz, stt_sz))
+        self.action_space = spaces.Box(low=0,  high=self.max_atoms_count , shape=(3,), dtype=np.float32)
         self.observation_space = spaces.Box(low=low, high=high, dtype=np.float32)
 
         # self.seed()

@@ -46,7 +46,7 @@ class Net(nn.Module):
         # self.conv3d3 = nn.Conv3d(2, 2, 2, stride=2, padding=0)
 
         # test_3
-        self.conv3d1 = nn.Conv3d(in_channels=4, out_channels=8, kernel_size=7, stride=2, padding=3)
+        self.conv3d1 = nn.Conv3d(in_channels=3, out_channels=8, kernel_size=7, stride=2, padding=3)
         # 4, 25, 25, 25
         self.conv3d2 = nn.Conv3d(8, 4, 7, stride=2, padding=3)
         # 2, 13, 13, 13
@@ -57,7 +57,7 @@ class Net(nn.Module):
         self.mu1 = nn.Linear(self.fltt, 128)
         self.mu2 = nn.Linear(256, 128)
         self.mu3 = nn.Linear(128, 64)
-        self.mu4 = nn.Linear(128, 4)
+        self.mu4 = nn.Linear(128, 3)
 
         self.mu_pre1 = nn.Linear(self.fltt, 128)
         self.mu_pre2 = nn.Linear(256, 128)
@@ -67,7 +67,7 @@ class Net(nn.Module):
         self.sigma1 = nn.Linear(self.fltt, 128)
         self.sigma2 = nn.Linear(256, 128)
         self.sigma3 = nn.Linear(128, 64)
-        self.sigma4 = nn.Linear(128, 4)
+        self.sigma4 = nn.Linear(128, 3)
         self.v1 = nn.Linear(self.fltt, 128)
         self.v2 = nn.Linear(256, 64)
         self.v3 = nn.Linear(64, 32)
@@ -109,7 +109,7 @@ class Net(nn.Module):
     def choose_action(self, s):
         self.training = False
         mu, sigma, _ = self.forward(s)
-        m = self.distribution(mu.view(4, ).data, sigma.view(4, ).data)
+        m = self.distribution(mu.view(3, ).data, sigma.view(3, ).data)
         return m.sample().numpy()
 
     def loss_func(self, s, a, v_t):
@@ -196,8 +196,8 @@ class Worker(mp.Process):
                     s0 = np.power(s[0] - v0, 2)
                     s1 = np.power(s[1] - v1, 2)
                     s2 = np.power(s[2] - v2, 2)
-                    s3 = np.power(s[3] - v3, 2)
-                    s_sum = s0 + s1 + s2 + s3
+                    # s3 = np.power(s[3] - v3, 2)
+                    s_sum = s0 + s1 + s2 # + s3
                     # ma1 = ma.masked_array(s1, s0>0.01)
                     # ma2 = ma.masked_array(s2, ma1.filled()>0.01)
                     # ma3 = ma.masked_array(s3, ma2.filled()>0.01)
