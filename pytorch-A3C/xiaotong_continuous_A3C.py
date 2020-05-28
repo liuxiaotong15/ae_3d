@@ -197,10 +197,10 @@ class Worker(mp.Process):
                     s1 = np.fabs(s[1] - v1)
                     s2 = np.fabs(s[2] - v2)
                     s3 = np.fabs(s[3] - v3)
-                    s1 = ma.masked_array(s1, s0>0.01)
-                    s2 = ma.masked_array(s2, s1>0.01)
-                    s3 = ma.masked_array(s3, s2>0.01)
-                    result1 = ma.where(s3 == s3.min())
+                    ma1 = ma.masked_array(s1, s0>0.01)
+                    ma2 = ma.masked_array(s2, ma1.filled()>0.01)
+                    ma3 = ma.masked_array(s3, ma2.filled()>0.01)
+                    result1 = ma.where(s3 == ma3,filled().min())
                     # result1 = np.where(s1 == np.amin(s1) and (s2 < 0.01))
                     # xyz in small action
                     x, y, z = 0, 0, 0
