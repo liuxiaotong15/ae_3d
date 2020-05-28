@@ -200,7 +200,7 @@ class Worker(mp.Process):
                     ma1 = ma.masked_array(s1, s0>0.01)
                     ma2 = ma.masked_array(s2, ma1.filled()>0.01)
                     ma3 = ma.masked_array(s3, ma2.filled()>0.01)
-                    result1 = ma.where(s3 == ma3,filled().min())
+                    result1 = ma.where(s3 == ma3.filled().min())
                     # result1 = np.where(s1 == np.amin(s1) and (s2 < 0.01))
                     # xyz in small action
                     x, y, z = 0, 0, 0
