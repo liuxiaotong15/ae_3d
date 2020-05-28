@@ -178,7 +178,7 @@ class Worker(mp.Process):
                 # if s.shape[0] != 1:
                 #     print('must handle batch training...')
                 #     1/0
-                # v = a.clip(0, 1)
+                a = a.clip(0, np.amax(s))
                 # print('output a,v is: ', a, v)
                 # std = a[0]
 
@@ -188,7 +188,7 @@ class Worker(mp.Process):
                 # v3 = a[3] * (t+1)
                 v = a[-1] * (t+1)
                 xyz = np.array([0, 0, 0])
-                if 1: # v0>=0 and v1>=0 and v2>=0:
+                if v0>=0 and v1>=0 and v2>=0:
                     # s1 = np.power(s[0], 2)
                     # s1 = np.power(s[0] - a[0], 2)
                     # s1 += np.power(s[1] - a[1], 2)
