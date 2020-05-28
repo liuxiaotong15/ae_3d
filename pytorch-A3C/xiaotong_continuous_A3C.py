@@ -57,7 +57,7 @@ class Net(nn.Module):
         self.mu1 = nn.Linear(self.fltt, 128)
         self.mu2 = nn.Linear(256, 128)
         self.mu3 = nn.Linear(128, 64)
-        self.mu4 = nn.Linear(128, 1)
+        self.mu4 = nn.Linear(128, 4)
 
         self.mu_pre1 = nn.Linear(self.fltt, 128)
         self.mu_pre2 = nn.Linear(256, 128)
@@ -67,7 +67,7 @@ class Net(nn.Module):
         self.sigma1 = nn.Linear(self.fltt, 128)
         self.sigma2 = nn.Linear(256, 128)
         self.sigma3 = nn.Linear(128, 64)
-        self.sigma4 = nn.Linear(128, 1)
+        self.sigma4 = nn.Linear(128, 4)
         self.v1 = nn.Linear(self.fltt, 128)
         self.v2 = nn.Linear(256, 64)
         self.v3 = nn.Linear(64, 32)
@@ -109,7 +109,7 @@ class Net(nn.Module):
     def choose_action(self, s):
         self.training = False
         mu, sigma, _ = self.forward(s)
-        m = self.distribution(mu.view(1, ).data, sigma.view(1, ).data)
+        m = self.distribution(mu.view(4, ).data, sigma.view(4, ).data)
         return m.sample().numpy()
 
     def loss_func(self, s, a, v_t):
@@ -182,23 +182,30 @@ class Worker(mp.Process):
                 # print('output a,v is: ', a, v)
                 # std = a[0]
 
-                # TODO: a[0, 1, 2] can be used as not the abs value of the s[0,1,2], but the ratio
-                v = a[-1] * (t+1)
+                v0 = a[0] * (t+1)
+                v1 = a[1] * (t+1)
+                v2 = a[2] * (t+1)
+                v3 = a[3] * (t+1)
+                v = v3
                 xyz = np.array([0, 0, 0])
                 if v>=0:
-                    s1 = np.power(s[0], 2)
+                    # s1 = np.power(s[0], 2)
                     # s1 = np.power(s[0] - a[0], 2)
                     # s1 += np.power(s[1] - a[1], 2)
                     # s1 += np.power(s[2] - a[2], 2)
-                    s2 = np.fabs(s[3] - v)
-                    masked_array = ma.masked_array(s1, s2>0.01)
-                    result1 = ma.where(masked_array == masked_array.min())
+                    s0 = np.fabs(s[0] - v0)
+                    s1 = np.fabs(s[1] - v1)
+                    s2 = np.fabs(s[2] - v2)
+                    s3 = np.fabs(s[3] - v3)
+                    s1 = ma.masked_array(s1, s0>0.01)
+                    s2 = ma.masked_array(s2, s1>0.01)
+                    s3 = ma.masked_array(s3, s2>0.01)
+                    result1 = ma.where(s3 == s3.min())
                     # result1 = np.where(s1 == np.amin(s1) and (s2 < 0.01))
                     # xyz in small action
                     x, y, z = 0, 0, 0
-                    if result1[0].shape[0] == 0:
-                        result1 = np.where(s2 == np.amin(s2))
-                    x, y, z = result1[0][0], result1[1][0], result1[2][0]
+                    if result1[0].shape[0] != 0:
+                        x, y, z = result1[0][0], result1[1][0], result1[2][0]
                     # print(x, y, z, s[3][x][y][z])
                     # cal the delta x, y, z
                     # action = s[0, max(0, x-1):min(x+2, stt_sz), max(0, y-1):min(y+2, stt_sz), max(0, z-1):min(z+2, stt_sz)]
@@ -239,9 +246,7 @@ class Worker(mp.Process):
                 ep_r += r
                 buffer_a.append(a)
                 buffer_s.append(s)
-                # buffer_r.append((r+8.1)/8.1)    # normalize
                 buffer_r.append(r)
-                # r_history.append((r, a.clip(LOW_A, HIGH_A)))
                 r_history.append(((r, xyz), a))
 
                 if total_step % UPDATE_GLOBAL_ITER == 0 or done:  # update global and assign to local net

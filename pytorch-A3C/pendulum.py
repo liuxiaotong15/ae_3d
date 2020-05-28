@@ -49,7 +49,10 @@ class PendulumEnv(gym.Env):
     # state_shap = 250
     def atoms2voxels(self, at):
         # 50*50*50 voxel returned
-        sigma = 0.6
+        sigma_1 = 0.5
+        sigma_2 = 0.6
+        sigma_3 = 0.7
+        sigma_4 = 0.8
         voxel_side_cnt = self.voxel_side_cnt
         side_len = self.side_len
         # volume = np.random.rand(voxel_side_cnt, voxel_side_cnt, voxel_side_cnt)
@@ -60,20 +63,23 @@ class PendulumEnv(gym.Env):
             # volume[0][i][j][k] = i/voxel_side_cnt
             # volume[1][i][j][k] = j/voxel_side_cnt
             # volume[2][i][j][k] = k/voxel_side_cnt
-            dis_lst = []
+            # dis_lst = []
             for idx in range(len(at)):
                 x, y, z = i/voxel_side_cnt * side_len, j/voxel_side_cnt * side_len, k/voxel_side_cnt * side_len
                 pow_sum = (x-at[idx].position[0])**2 + (y-at[idx].position[1])**2 + (z-at[idx].position[2])**2
-                volume[-1][i][j][k] += math.exp(-1*pow_sum/(2*sigma**2))
-                dis_lst.append(math.exp(-1*pow_sum/(2*sigma**2)))
-            volume[0][i][j][k] = np.std(np.array(dis_lst))
-            volume[1][i][j][k] = np.amax(np.array(dis_lst))
-            volume[2][i][j][k] = np.amin(np.array(dis_lst))
-        np.clip(volume[-1], 0, 2)
+                volume[0][i][j][k] += math.exp(-1*pow_sum/(2*sigma_1**2))
+                volume[1][i][j][k] += math.exp(-1*pow_sum/(2*sigma_2**2))
+                volume[2][i][j][k] += math.exp(-1*pow_sum/(2*sigma_3**2))
+                volume[3][i][j][k] += math.exp(-1*pow_sum/(2*sigma_4**2))
+                # dis_lst.append(math.exp(-1*pow_sum/(2*sigma**2)))
+            # volume[0][i][j][k] = np.std(np.array(dis_lst))
+            # volume[1][i][j][k] = np.amax(np.array(dis_lst))
+            # volume[2][i][j][k] = np.amin(np.array(dis_lst))
+        np.clip(volume, 0, max_atoms_count/2)
         # volume[-1] /= np.amax(volume[-1])
         # volume[-1] = 1/(1+np.exp(-10*(volume[-1]-0.5)))
-        if np.amax(volume[0]) > 0:
-            volume[0] /= np.amax(volume[0])
+        # if np.amax(volume[0]) > 0:
+        #     volume[0] /= np.amax(volume[0])
         # print('max: ', np.amax(volume), 'min: ', np.amin(volume), 'mean: ', np.average(volume), 'atoms cnt: ', len(at))
         return volume
 
