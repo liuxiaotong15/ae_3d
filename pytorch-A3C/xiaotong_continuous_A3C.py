@@ -199,7 +199,7 @@ class Worker(mp.Process):
                     s1 = np.power(s[1] - v1, 2)
                     s2 = np.power(s[2] - v2, 2)
                     # s3 = np.power(s[3] - v3, 2)
-                    ma1 = ma.masked_array(s1, s0>0.01)
+                    ma1 = ma.masked_array(s1, s0>0.0001)
                     # ma2 = ma.masked_array(s2, ma1.filled()>0.01)
                     # ma3 = ma.masked_array(s3, ma2.filled()>0.01)
                     # result1 = ma.where(s3 == ma3.filled().min())
