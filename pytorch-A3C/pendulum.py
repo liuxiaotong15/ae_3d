@@ -49,9 +49,9 @@ class PendulumEnv(gym.Env):
     # state_shap = 250
     def atoms2voxels(self, at):
         # 50*50*50 voxel returned
-        sigma_1 = 0.5
-        sigma_2 = 0.6
-        sigma_3 = 0.7
+        sigma_1 = 0.6
+        sigma_2 = 0.7
+        sigma_3 = 0.8
         # sigma_4 = 0.8
         voxel_side_cnt = self.voxel_side_cnt
         side_len = self.side_len
