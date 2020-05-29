@@ -199,7 +199,14 @@ class Worker(mp.Process):
                     s1 = np.power(s[1] - v1, 2)
                     s2 = np.power(s[2] - v2, 2)
                     # s3 = np.power(s[3] - v3, 2)
-                    ma1 = ma.masked_array(s1, s0>0.0001)
+                    threshold = 1e-4
+                    ma1 = None
+                    while True:
+                        ma1 = ma.masked_array(s1, s0>threshold)
+                        if np.sum(ma1.mask==False) > 1000:
+                            threshold /= 2
+                        else:
+                            break
                     print('False in masked_array: ', np.sum(ma1.mask==False))
                     # ma2 = ma.masked_array(s2, ma1.filled()>0.01)
                     # ma3 = ma.masked_array(s3, ma2.filled()>0.01)
