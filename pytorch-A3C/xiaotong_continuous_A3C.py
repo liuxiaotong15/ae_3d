@@ -203,7 +203,7 @@ class Worker(mp.Process):
                     ma1 = None
                     while True:
                         ma1 = ma.masked_array(s1, s0>threshold)
-                        if np.sum(ma1.mask==False) > 1000:
+                        if np.sum(ma1.mask==False) > 500:
                             threshold /= 2
                         else:
                             break
