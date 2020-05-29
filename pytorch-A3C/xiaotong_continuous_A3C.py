@@ -263,7 +263,7 @@ class Worker(mp.Process):
                         if g_ep_ret % 1000 == 0:
                             torch.save(self.lnet.state_dict(), 'ep_' + str(g_ep_ret) + '.pth')
                         for param_group in self.opt.param_groups:
-                            param_group['lr'] = 1e-5 * (0.5 ** (g_ep_ret//5000))
+                            param_group['lr'] = 1e-5 * (0.5 ** (g_ep_ret//20000))
                         break
                 s = s_
                 total_step += 1
