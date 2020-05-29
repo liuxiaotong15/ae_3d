@@ -181,8 +181,8 @@ class Worker(mp.Process):
                 a = a.clip(0, np.amax(s))
                 # print('output a,v is: ', a, v)
                 # std = a[0]
-                a[1] = max(a[0], a[1])
-                a[2] = max(a[1], a[2])
+                # a[1] = max(a[0], a[1])
+                # a[2] = max(a[1], a[2])
 
                 v0 = a[0] * (t+1)
                 v1 = a[1] * (t+1)
@@ -199,11 +199,12 @@ class Worker(mp.Process):
                     s1 = np.power(s[1] - v1, 2)
                     s2 = np.power(s[2] - v2, 2)
                     # s3 = np.power(s[3] - v3, 2)
-                    s_sum = s0 + s1 + s2 # + s3
-                    # ma1 = ma.masked_array(s1, s0>0.01)
+                    ma1 = ma.masked_array(s1, s0>0.01)
                     # ma2 = ma.masked_array(s2, ma1.filled()>0.01)
                     # ma3 = ma.masked_array(s3, ma2.filled()>0.01)
                     # result1 = ma.where(s3 == ma3.filled().min())
+                    
+                    s_sum = ma1.filled() + s2 # + s3
                     result1 = np.where(s_sum == np.amin(s_sum))
                     # xyz in small action
                     x, y, z = 0, 0, 0
