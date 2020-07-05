@@ -120,7 +120,7 @@ class Worker(mp.Process):
             xyz_lst.extend(list(at.position))
         while len(xyz_lst) < self.env.max_atoms_count * 3:
             xyz_lst.append(-1)
-        return xyz_lst
+        return np.array(xyz_lst)
 
 
     def run(self):
