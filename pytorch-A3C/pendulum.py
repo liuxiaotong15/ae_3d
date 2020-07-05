@@ -47,7 +47,6 @@ class PendulumEnv(gym.Env):
     def reset(self):
         side_len = self.side_len
         self.state_atoms = Atoms()
-        # observation_space = Box(low=np.zeros((1, stt_sz, stt_sz, stt_sz)), high=np.zeros((1, stt_sz, stt_sz, stt_sz)) + max_atoms_count, dtype=np.float32) 
         # DONE: return 1 atom at the center of the box
         self.state_atoms.append(Atom('Au', ( side_len * 0.5 , side_len * 0.5, side_len * 0.5 )))
         return self.state_atoms
@@ -56,7 +55,6 @@ class PendulumEnv(gym.Env):
 
     def __init__(self, g=10.0):
         self.side_len = 5
-        stt_sz = self.stt_sz
         self.viewer = None
         
         # action space is xyz output from NN.
