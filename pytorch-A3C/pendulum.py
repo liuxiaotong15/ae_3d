@@ -27,8 +27,7 @@ class PendulumEnv(gym.Env):
         'video.frames_per_second' : 30
     }
 
-    side_len = 5
-    stt_sz = 50
+    side_len = 5 # A
     max_atoms_count = 10
     
     global_min_energy = [0] * 80
@@ -43,10 +42,7 @@ class PendulumEnv(gym.Env):
         -331.588748, -336.121753, -341.266253, -346.610834, -351.472365, -356.372708, -361.727086, -367.0722648, -372.832290, -378.333471, #71-80
     ]
     
-    state_voxels = np.zeros((3, stt_sz, stt_sz, stt_sz))
     state_atoms = Atoms()
-    voxel_side_cnt = stt_sz
-    # state_shap = 250
 
     def reset(self):
         side_len = self.side_len
@@ -54,7 +50,6 @@ class PendulumEnv(gym.Env):
         # observation_space = Box(low=np.zeros((1, stt_sz, stt_sz, stt_sz)), high=np.zeros((1, stt_sz, stt_sz, stt_sz)) + max_atoms_count, dtype=np.float32) 
         # DONE: return 1 atom at the center of the box
         self.state_atoms.append(Atom('Au', ( side_len * 0.5 , side_len * 0.5, side_len * 0.5 )))
-        # self.state_voxels = self.atoms2voxels(self.state_atoms)
         return self.state_atoms
         # return np.zeros((self.state_shap,))
 
@@ -63,13 +58,14 @@ class PendulumEnv(gym.Env):
         self.side_len = 5
         stt_sz = self.stt_sz
         self.viewer = None
-        # high = np.ones((250,)) * self.side_len
-        # low = np.zeros((250,))
         
-        # high = np.array([1., 1., self.max_speed], dtype=np.float32)
-        high = np.ones((3, stt_sz, stt_sz, stt_sz)) * self.max_atoms_count
-        low = np.zeros((3, stt_sz, stt_sz, stt_sz))
-        self.action_space = spaces.Box(low=0,  high=self.max_atoms_count , shape=(3,), dtype=np.float32)
+        # action space is xyz output from NN.
+        self.action_space = spaces.Box(low=0,  high=self.side_len, shape=(3,), dtype=np.float32)
+
+        # observation space is an Atom list. It will be process outside. 
+        # here is just a placeholder.
+        high = np.ones(self.max_atoms_count)
+        low = np.zeros(self.max_atoms_count)
         self.observation_space = spaces.Box(low=low, high=high, dtype=np.float32)
 
         # self.seed()
@@ -85,14 +81,11 @@ class PendulumEnv(gym.Env):
         # DONE: 2. add new atom to state
         morse_calc = MorsePotential()
         self.state_atoms.append(Atom('Au', ( side_len * x, side_len * y, side_len * z )))
-        # self.state_voxels = self.atoms2voxels(self.state_atoms)
         # DONE: 3. calculate the reward of the action
         atom_cnt = len(self.state_atoms)
         self.state_atoms.set_calculator(morse_calc)
         engy = self.state_atoms.get_potential_energy()
         
-        # reward is between 0-1, so sigmoid as activation func is enough
-        # reward = (self.std_ans_morse_clst[atom_cnt-2] - engy)/(self.std_ans_morse_clst[atom_cnt-2] - self.std_ans_morse_clst[atom_cnt-1])
         reward = (engy)/(self.std_ans_morse_clst[atom_cnt-1])
 
         if atom_cnt == self.max_atoms_count or reward < 0:
@@ -102,10 +95,6 @@ class PendulumEnv(gym.Env):
         msg = 'test ok...'
         return self.state_atoms, reward, done, msg
 
-    def _get_obs(self):
-        theta, thetadot = self.state
-        return np.array([np.cos(theta), np.sin(theta), thetadot])
-
     def render(self, mode='human'):
         pass
 
@@ -114,5 +103,3 @@ class PendulumEnv(gym.Env):
             self.viewer.close()
             self.viewer = None
 
-def angle_normalize(x):
-    return (((x+np.pi) % (2*np.pi)) - np.pi)

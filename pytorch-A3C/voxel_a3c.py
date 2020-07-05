@@ -26,8 +26,8 @@ MAX_EP_STEP = 200
 env = gym.make('Pendulum-v0')
 N_S = env.observation_space.shape[0] # useless
 N_A = env.action_space.shape[0]
-HIGH_A = env.action_space.high[0]
-LOW_A = env.action_space.low[0]
+# HIGH_A = env.action_space.high[0]
+# LOW_A = env.action_space.low[0]
 
 class Net(nn.Module):
     def __init__(self, s_dim, a_dim):
@@ -144,6 +144,7 @@ class Net(nn.Module):
 class Worker(mp.Process):
     def __init__(self, gnet, opt, global_ep, global_ep_r, global_max_ep_r, res_queue, name):
         super(Worker, self).__init__()
+        self.grid_cnt = 50
         self.seed = name
         self.name = 'w%i' % name
         self.g_ep, self.g_ep_r, self.res_queue = global_ep, global_ep_r, res_queue
@@ -215,7 +216,7 @@ class Worker(mp.Process):
                 # action conversion
                 # print('a: ', a, a.shape)
                 # print('s: ', s.shape)
-                stt_sz = s.shape[3]
+                stt_sz = self.grid_cnt
                 # if s.shape[0] != 1:
                 #     print('must handle batch training...')
                 #     1/0
