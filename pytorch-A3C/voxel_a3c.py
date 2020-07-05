@@ -161,7 +161,7 @@ class Worker(mp.Process):
         sigma_2 = 0.7
         sigma_3 = 0.8
         # sigma_4 = 0.8
-        voxel_side_cnt = self.env.voxel_side_cnt
+        voxel_side_cnt = self.grid_cnt
         side_len = self.env.side_len
         # volume = np.random.rand(voxel_side_cnt, voxel_side_cnt, voxel_side_cnt)
         volume = np.zeros((3, voxel_side_cnt, voxel_side_cnt, voxel_side_cnt), dtype=float)
