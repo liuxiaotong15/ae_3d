@@ -46,7 +46,7 @@ class Net(nn.Module):
         # self.conv3d3 = nn.Conv3d(2, 2, 2, stride=2, padding=0)
 
         # test_3
-        self.conv3d1 = nn.Conv3d(in_channels=4, out_channels=8, kernel_size=7, stride=2, padding=3)
+        self.conv3d1 = nn.Conv3d(in_channels=3, out_channels=8, kernel_size=7, stride=2, padding=3)
         # 4, 25, 25, 25
         self.conv3d2 = nn.Conv3d(8, 4, 7, stride=2, padding=3)
         # 2, 13, 13, 13
@@ -57,7 +57,7 @@ class Net(nn.Module):
         self.mu1 = nn.Linear(self.fltt, 128)
         self.mu2 = nn.Linear(256, 128)
         self.mu3 = nn.Linear(128, 64)
-        self.mu4 = nn.Linear(128, 4)
+        self.mu4 = nn.Linear(128, 3)
 
         self.mu_pre1 = nn.Linear(self.fltt, 128)
         self.mu_pre2 = nn.Linear(256, 128)
@@ -67,7 +67,7 @@ class Net(nn.Module):
         self.sigma1 = nn.Linear(self.fltt, 128)
         self.sigma2 = nn.Linear(256, 128)
         self.sigma3 = nn.Linear(128, 64)
-        self.sigma4 = nn.Linear(128, 4)
+        self.sigma4 = nn.Linear(128, 3)
         self.v1 = nn.Linear(self.fltt, 128)
         self.v2 = nn.Linear(256, 64)
         self.v3 = nn.Linear(64, 32)
@@ -109,7 +109,7 @@ class Net(nn.Module):
     def choose_action(self, s):
         self.training = False
         mu, sigma, _ = self.forward(s)
-        m = self.distribution(mu.view(4, ).data, sigma.view(4, ).data)
+        m = self.distribution(mu.view(3, ).data, sigma.view(3, ).data)
         return m.sample().numpy()
 
     def loss_func(self, s, a, v_t):
@@ -153,12 +153,52 @@ class Worker(mp.Process):
         # self.env = gym.make('Pendulum-v0').unwrapped
         self.env = env 
 
+    def atoms2voxels(self, at):
+        # 50*50*50 voxel returned
+        sigma_1 = 0.6
+        sigma_2 = 0.7
+        sigma_3 = 0.8
+        # sigma_4 = 0.8
+        voxel_side_cnt = self.env.voxel_side_cnt
+        side_len = self.env.side_len
+        # volume = np.random.rand(voxel_side_cnt, voxel_side_cnt, voxel_side_cnt)
+        volume = np.zeros((3, voxel_side_cnt, voxel_side_cnt, voxel_side_cnt), dtype=float)
+        for i, j, k in itertools.product(range(voxel_side_cnt),
+                range(voxel_side_cnt),
+                range(voxel_side_cnt)):
+            # volume[0][i][j][k] = i/voxel_side_cnt
+            # volume[1][i][j][k] = j/voxel_side_cnt
+            # volume[2][i][j][k] = k/voxel_side_cnt
+            # dis_lst = []
+            for idx in range(len(at)):
+                x, y, z = i/voxel_side_cnt * side_len, j/voxel_side_cnt * side_len, k/voxel_side_cnt * side_len
+                pow_sum = (x-at[idx].position[0])**2 + (y-at[idx].position[1])**2 + (z-at[idx].position[2])**2
+                volume[0][i][j][k] += math.exp(-1*pow_sum/(2*sigma_1**2))
+                volume[1][i][j][k] += math.exp(-1*pow_sum/(2*sigma_2**2))
+                volume[2][i][j][k] += math.exp(-1*pow_sum/(2*sigma_3**2))
+                # volume[3][i][j][k] += math.exp(-1*pow_sum/(2*sigma_4**2))
+                # dis_lst.append(math.exp(-1*pow_sum/(2*sigma**2)))
+            # volume[0][i][j][k] = np.std(np.array(dis_lst))
+            # volume[1][i][j][k] = np.amax(np.array(dis_lst))
+            # volume[2][i][j][k] = np.amin(np.array(dis_lst))
+        np.clip(volume, 0, self.max_atoms_count/2)
+        # volume[-1] /= np.amax(volume[-1])
+        # volume[-1] = 1/(1+np.exp(-10*(volume[-1]-0.5)))
+        # if np.amax(volume[0]) > 0:
+        #     volume[0] /= np.amax(volume[0])
+        # print('max: ', np.amax(volume), 'min: ', np.amin(volume), 'mean: ', np.average(volume), 'atoms cnt: ', len(at))
+        return volume
+
+
     def run(self):
         total_step = 1
         torch.manual_seed(self.seed)
         np.random.seed(self.seed)
         while self.g_ep.value < MAX_EP:
             s = self.env.reset()
+
+            s = self.atoms2voxels(s)
+            
             buffer_s, buffer_a, buffer_r = [], [], []
             r_history = []
             ep_r = 0.
@@ -178,17 +218,18 @@ class Worker(mp.Process):
                 # if s.shape[0] != 1:
                 #     print('must handle batch training...')
                 #     1/0
-                # v = a.clip(0, 1)
+                a = a.clip(0, np.amax(s))
                 # print('output a,v is: ', a, v)
                 # std = a[0]
+                # a[1] = max(a[0], a[1])
+                # a[2] = max(a[1], a[2])
 
                 v0 = a[0] * (t+1)
                 v1 = a[1] * (t+1)
                 v2 = a[2] * (t+1)
-                v3 = a[3] * (t+1)
                 v = a[-1] * (t+1)
                 xyz = np.array([0, 0, 0])
-                if v0>=0 and v1>=0 and v2>=0 and v3>=0:
+                if v0>=0 and v1>=0 and v2>=0:
                     # s1 = np.power(s[0], 2)
                     # s1 = np.power(s[0] - a[0], 2)
                     # s1 += np.power(s[1] - a[1], 2)
@@ -196,12 +237,21 @@ class Worker(mp.Process):
                     s0 = np.power(s[0] - v0, 2)
                     s1 = np.power(s[1] - v1, 2)
                     s2 = np.power(s[2] - v2, 2)
-                    s3 = np.power(s[3] - v3, 2)
-                    s_sum = s0 + s1 + s2 + s3
-                    # ma1 = ma.masked_array(s1, s0>0.01)
+                    # s3 = np.power(s[3] - v3, 2)
+                    threshold = 1e-4
+                    ma1 = None
+                    while True:
+                        ma1 = ma.masked_array(s1, s0>threshold)
+                        if np.sum(ma1.mask==False) > 500:
+                            threshold /= 2
+                        else:
+                            break
+                    print('False in masked_array: ', np.sum(ma1.mask==False))
                     # ma2 = ma.masked_array(s2, ma1.filled()>0.01)
                     # ma3 = ma.masked_array(s3, ma2.filled()>0.01)
                     # result1 = ma.where(s3 == ma3.filled().min())
+                    
+                    s_sum = ma1.filled() + s2 # + s3
                     result1 = np.where(s_sum == np.amin(s_sum))
                     # xyz in small action
                     x, y, z = 0, 0, 0
@@ -241,6 +291,8 @@ class Worker(mp.Process):
                 else:
                     xyz = np.array([0.5, 0.5, 0.5])
                     s_, r, done, _ = self.env.step(xyz)
+                
+                s_ = self.atoms2voxels(s_)
                 # s_, r, done, _ = self.env.step(a.clip(LOW_A, HIGH_A))
                 if t == MAX_EP_STEP - 1:
                     done = True
@@ -261,7 +313,7 @@ class Worker(mp.Process):
                         if g_ep_ret % 1000 == 0:
                             torch.save(self.lnet.state_dict(), 'ep_' + str(g_ep_ret) + '.pth')
                         for param_group in self.opt.param_groups:
-                            param_group['lr'] = 1e-5 * (0.5 ** (g_ep_ret//5000))
+                            param_group['lr'] = 1e-5 * (0.5 ** (g_ep_ret//20000))
                         break
                 s = s_
                 total_step += 1
