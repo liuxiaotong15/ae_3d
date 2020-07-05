@@ -26,7 +26,7 @@ MAX_EP_STEP = 200
 env = gym.make('Pendulum-v0')
 N_S = env.max_atoms_count * 3
 N_A = env.action_space.shape[0]
-HIGH_A = env.side_len
+HIGH_A = 1
 LOW_A = 0
 
 class Net(nn.Module):
@@ -136,7 +136,7 @@ class Worker(mp.Process):
             ep_r = 0.
             for t in range(MAX_EP_STEP):
                 a = self.lnet.choose_action(v_wrap(s[None, :]))
-                xyz = a
+                xyz = a.clip(LOW_A, HIGH_A)
                 # xyz = np.array([0.5, 0.5, 0.5])
                 s_, r, done, _ = self.env.step(xyz)
                 
@@ -159,8 +159,8 @@ class Worker(mp.Process):
 
                     if done:  # done and print information
                         g_ep_ret = record(self.g_ep, self.g_ep_r, ep_r, self.res_queue, self.name, r_history, self.g_ep_max_r)
-                        if g_ep_ret % 1000 == 0:
-                            torch.save(self.lnet.state_dict(), 'ep_' + str(g_ep_ret) + '.pth')
+                        # if g_ep_ret % 1000 == 0:
+                        #     torch.save(self.lnet.state_dict(), 'ep_' + str(g_ep_ret) + '.pth')
                         for param_group in self.opt.param_groups:
                             param_group['lr'] = 1e-5 * (0.5 ** (g_ep_ret//20000))
                         break

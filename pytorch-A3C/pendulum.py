@@ -28,7 +28,7 @@ class PendulumEnv(gym.Env):
     }
 
     side_len = 5 # A
-    max_atoms_count = 10
+    max_atoms_count = 3
     
     global_min_energy = [0] * 80
     std_ans_morse_clst = \
@@ -89,7 +89,7 @@ class PendulumEnv(gym.Env):
         if atom_cnt == self.max_atoms_count or reward < 0:
             done = True
 
-        reward = max(0, reward)
+        reward = max(0.01, reward)
         msg = 'test ok...'
         return self.state_atoms, reward, done, msg
 
