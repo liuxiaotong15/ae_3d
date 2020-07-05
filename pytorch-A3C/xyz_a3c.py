@@ -68,7 +68,7 @@ class Net(nn.Module):
         sigma = F.relu(self.sigma3(sigma))
         sigma = F.softplus(self.sigma4(sigma)) + 0.0000001      # avoid 0
         
-        values = F.relu(self.v1(x))
+        x = F.relu(self.v1(x))
         x = F.relu(self.v2(x))
         x = F.relu(self.v3(x))
         values = self.v4(values)
