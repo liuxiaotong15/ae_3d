@@ -47,41 +47,6 @@ class PendulumEnv(gym.Env):
     state_atoms = Atoms()
     voxel_side_cnt = stt_sz
     # state_shap = 250
-    def atoms2voxels(self, at):
-        # 50*50*50 voxel returned
-        sigma_1 = 0.6
-        sigma_2 = 0.7
-        sigma_3 = 0.8
-        # sigma_4 = 0.8
-        voxel_side_cnt = self.voxel_side_cnt
-        side_len = self.side_len
-        # volume = np.random.rand(voxel_side_cnt, voxel_side_cnt, voxel_side_cnt)
-        volume = np.zeros((3, voxel_side_cnt, voxel_side_cnt, voxel_side_cnt), dtype=float)
-        for i, j, k in itertools.product(range(voxel_side_cnt),
-                range(voxel_side_cnt),
-                range(voxel_side_cnt)):
-            # volume[0][i][j][k] = i/voxel_side_cnt
-            # volume[1][i][j][k] = j/voxel_side_cnt
-            # volume[2][i][j][k] = k/voxel_side_cnt
-            # dis_lst = []
-            for idx in range(len(at)):
-                x, y, z = i/voxel_side_cnt * side_len, j/voxel_side_cnt * side_len, k/voxel_side_cnt * side_len
-                pow_sum = (x-at[idx].position[0])**2 + (y-at[idx].position[1])**2 + (z-at[idx].position[2])**2
-                volume[0][i][j][k] += math.exp(-1*pow_sum/(2*sigma_1**2))
-                volume[1][i][j][k] += math.exp(-1*pow_sum/(2*sigma_2**2))
-                volume[2][i][j][k] += math.exp(-1*pow_sum/(2*sigma_3**2))
-                # volume[3][i][j][k] += math.exp(-1*pow_sum/(2*sigma_4**2))
-                # dis_lst.append(math.exp(-1*pow_sum/(2*sigma**2)))
-            # volume[0][i][j][k] = np.std(np.array(dis_lst))
-            # volume[1][i][j][k] = np.amax(np.array(dis_lst))
-            # volume[2][i][j][k] = np.amin(np.array(dis_lst))
-        np.clip(volume, 0, self.max_atoms_count/2)
-        # volume[-1] /= np.amax(volume[-1])
-        # volume[-1] = 1/(1+np.exp(-10*(volume[-1]-0.5)))
-        # if np.amax(volume[0]) > 0:
-        #     volume[0] /= np.amax(volume[0])
-        # print('max: ', np.amax(volume), 'min: ', np.amin(volume), 'mean: ', np.average(volume), 'atoms cnt: ', len(at))
-        return volume
 
     def reset(self):
         side_len = self.side_len
@@ -89,8 +54,8 @@ class PendulumEnv(gym.Env):
         # observation_space = Box(low=np.zeros((1, stt_sz, stt_sz, stt_sz)), high=np.zeros((1, stt_sz, stt_sz, stt_sz)) + max_atoms_count, dtype=np.float32) 
         # DONE: return 1 atom at the center of the box
         self.state_atoms.append(Atom('Au', ( side_len * 0.5 , side_len * 0.5, side_len * 0.5 )))
-        self.state_voxels = self.atoms2voxels(self.state_atoms)
-        return self.state_voxels
+        # self.state_voxels = self.atoms2voxels(self.state_atoms)
+        return self.state_atoms
         # return np.zeros((self.state_shap,))
 
 
@@ -113,29 +78,6 @@ class PendulumEnv(gym.Env):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
     
-    # depreciated: old reward function which make relations with the differential of the energy...
-    # def step(self, u):
-    #     done = False
-    #     side_len = self.side_len
-    #     x, y, z = u[0], u[1], u[2]
-    #     # DONE: 2. add new atom to state
-    #     morse_calc = MorsePotential()
-    #     self.state_atoms.set_calculator(morse_calc)
-    #     orig_engy = self.state_atoms.get_potential_energy()
-    #     self.state_atoms.append(Atom('Au', ( side_len * x, side_len * y, side_len * z )))
-    #     self.state_voxels = self.atoms2voxels(self.state_atoms)
-    #     # DONE: 3. calculate the reward of the action
-    #     self.state_atoms.set_calculator(morse_calc)
-    #     next_engy = self.state_atoms.get_potential_energy()
-    #     reward = orig_engy - next_engy
-    #     if reward < 0.5:
-    #         done = True
-    #     reward = max(0, reward)
-    #     if len(self.state_atoms) == self.max_atoms_count:
-    #         done = True
-    #     msg = 'test ok...'
-    #     return self.state_voxels, reward, done, msg
-
     def step(self, u):
         done = False
         side_len = self.side_len
@@ -143,7 +85,7 @@ class PendulumEnv(gym.Env):
         # DONE: 2. add new atom to state
         morse_calc = MorsePotential()
         self.state_atoms.append(Atom('Au', ( side_len * x, side_len * y, side_len * z )))
-        self.state_voxels = self.atoms2voxels(self.state_atoms)
+        # self.state_voxels = self.atoms2voxels(self.state_atoms)
         # DONE: 3. calculate the reward of the action
         atom_cnt = len(self.state_atoms)
         self.state_atoms.set_calculator(morse_calc)
@@ -158,7 +100,7 @@ class PendulumEnv(gym.Env):
 
         reward = max(0, reward)
         msg = 'test ok...'
-        return self.state_voxels, reward, done, msg
+        return self.state_atoms, reward, done, msg
 
     def _get_obs(self):
         theta, thetadot = self.state
@@ -171,30 +113,6 @@ class PendulumEnv(gym.Env):
         if self.viewer:
             self.viewer.close()
             self.viewer = None
-
-    # def step(self, u):
-    #     high = np.ones((250,)) * self.side_len
-    #     print("step of chem env")
-    #     return high, 100, False, {}
-
-    # def reset(self):
-    #     high = np.ones((250,)) * self.side_len
-    #     self.state = self.np_random.uniform(low=-high, high=high)
-    #     self.last_u = None
-    #     # high = np.array([np.pi, 1])
-    #     # self.state = self.np_random.uniform(low=-high, high=high)
-    #     # self.last_u = None
-    #     return high
-
-    # def _get_obs(self):
-    #     theta, thetadot = self.state
-    #     return np.array([np.cos(theta), np.sin(theta), thetadot])
-
-    # def render(self, mode='human'):
-    #     pass
-
-    # def close(self):
-    #     pass
 
 def angle_normalize(x):
     return (((x+np.pi) % (2*np.pi)) - np.pi)
