@@ -11,6 +11,7 @@ from utils_xiaotong import v_wrap, set_init, push_and_pull, record
 import torch.nn.functional as F
 import torch.multiprocessing as mp
 from shared_adam import SharedAdam
+import itertools
 import gym
 import math, os, time
 import numpy as np
@@ -181,7 +182,7 @@ class Worker(mp.Process):
             # volume[0][i][j][k] = np.std(np.array(dis_lst))
             # volume[1][i][j][k] = np.amax(np.array(dis_lst))
             # volume[2][i][j][k] = np.amin(np.array(dis_lst))
-        np.clip(volume, 0, self.max_atoms_count/2)
+        np.clip(volume, 0, self.env.max_atoms_count/2)
         # volume[-1] /= np.amax(volume[-1])
         # volume[-1] = 1/(1+np.exp(-10*(volume[-1]-0.5)))
         # if np.amax(volume[0]) > 0:
