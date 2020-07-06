@@ -91,13 +91,13 @@ class Net(nn.Module):
         m = self.distribution(mu, sigma)
         log_prob = m.log_prob(a)
         entropy = 0.5 + 0.5 * math.log(2 * math.pi) + torch.log(torch.clamp(m.scale, 1e-10))  # exploration
-        print('entropy: ', entropy)
-        print('log_prob: ', log_prob)
-        print('td: ', td.detach(), 'v_t: ', v_t, 'values: ', values, 'mu: ', mu, 'sigma: ', sigma)
+        # print('entropy: ', entropy)
+        # print('log_prob: ', log_prob)
+        # print('td: ', td.detach(), 'v_t: ', v_t, 'values: ', values, 'mu: ', mu, 'sigma: ', sigma)
         exp_v = log_prob * td.detach() + 0.005 * entropy
         a_loss = -exp_v
         total_loss = (a_loss + c_loss).mean()
-        print('total_loss: ', total_loss)
+        # print('total_loss: ', total_loss)
         return total_loss
 
 
@@ -120,7 +120,7 @@ class Worker(mp.Process):
             xyz_lst.extend(list(at.position))
         while len(xyz_lst) < self.env.max_atoms_count * 3:
             xyz_lst.append(-1)
-        return np.array([xyz_lst])
+        return np.array([xyz_lst])/self.env.side_len
 
 
     def run(self):
