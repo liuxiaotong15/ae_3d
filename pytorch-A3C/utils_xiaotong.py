@@ -74,8 +74,8 @@ def record(global_ep, global_ep_r, ep_r, res_queue, name, r_history, global_max_
         "| Ep_r_cur: %.6f" % ep_r,
         '| Ep_r_max: %.6f' % global_max_ep_r.value
         )
-    for rh in r_history:
-        print(rh)
-    print('-' * 100)
+    # for rh in r_history:
+    #     print(rh)
+    # print('-' * 100)
     return ret
 
