@@ -27,7 +27,7 @@ class PendulumEnv(gym.Env):
         'video.frames_per_second' : 30
     }
 
-    side_len = 1 # A
+    side_len = 2 # A
     max_atoms_count = 3
     
     global_min_energy = [0] * 80
