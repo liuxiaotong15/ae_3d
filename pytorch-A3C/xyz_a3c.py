@@ -120,7 +120,7 @@ class Worker(mp.Process):
             xyz_lst.extend(list(at.position))
         while len(xyz_lst) < self.env.max_atoms_count * 3:
             xyz_lst.append(-1 * self.env.side_len)
-        return np.array([xyz_lst])/self.env.side_len
+        return np.array([xyz_lst])/self.env.side_len + 1
 
 
     def run(self):
@@ -141,7 +141,6 @@ class Worker(mp.Process):
                 s_, r, done, _ = self.env.step(a)
                 
                 s_ = self.atoms2xyz(s_)
-                
                 if t == MAX_EP_STEP - 1:
                     done = True
                 ep_r += r

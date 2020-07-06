@@ -89,7 +89,7 @@ class PendulumEnv(gym.Env):
         if atom_cnt == self.max_atoms_count or reward < 0:
             done = True
 
-        reward = max(0.01, reward)
+        reward = max(0, reward)
         msg = 'test ok...'
         return self.state_atoms, reward, done, msg
 
