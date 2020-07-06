@@ -119,7 +119,7 @@ class Worker(mp.Process):
         for at in atoms:
             xyz_lst.extend(list(at.position))
         while len(xyz_lst) < self.env.max_atoms_count * 3:
-            xyz_lst.append(-1)
+            xyz_lst.append(-1 * self.env.side_len)
         return np.array([xyz_lst])/self.env.side_len
 
 
@@ -136,9 +136,9 @@ class Worker(mp.Process):
             ep_r = 0.
             for t in range(MAX_EP_STEP):
                 a = self.lnet.choose_action(v_wrap(s[None, :]))
-                xyz = a.clip(LOW_A, HIGH_A)
+                a = a.clip(LOW_A, HIGH_A)
                 # xyz = np.array([0.5, 0.5, 0.5])
-                s_, r, done, _ = self.env.step(xyz)
+                s_, r, done, _ = self.env.step(a)
                 
                 s_ = self.atoms2xyz(s_)
                 
@@ -149,7 +149,7 @@ class Worker(mp.Process):
                 buffer_a.append(a)
                 buffer_s.append(s)
                 buffer_r.append(r)
-                r_history.append(((r, xyz), a))
+                r_history.append(((r, a), a))
 
                 if total_step % UPDATE_GLOBAL_ITER == 0 or done:  # update global and assign to local net
                     # sync
