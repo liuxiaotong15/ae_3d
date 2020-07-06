@@ -54,7 +54,7 @@ class PendulumEnv(gym.Env):
 
 
     def __init__(self, g=10.0):
-        self.side_len = 5
+        # self.side_len = 2
         self.viewer = None
         
         # action space is xyz output from NN.
