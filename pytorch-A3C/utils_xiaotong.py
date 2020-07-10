@@ -66,7 +66,8 @@ def record(global_ep, global_ep_r, ep_r, res_queue, name, r_history, global_max_
     with global_max_ep_r.get_lock():
         global_max_ep_r.value = max(global_max_ep_r.value, ep_r)
     res_queue.put(global_ep_r.value)
-    print(
+    if global_ep.value % 1000 == 0:
+        print(
         commit_id,
         name,
         "Ep:", global_ep.value,

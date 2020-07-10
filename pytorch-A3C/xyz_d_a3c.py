@@ -17,8 +17,6 @@ import math, os, time
 import numpy as np
 import numpy.ma as ma
 from scipy.optimize import minimize
-import pointnet as pn
-
 os.environ["OMP_NUM_THREADS"] = "1"
 
 UPDATE_GLOBAL_ITER = 5
@@ -35,17 +33,6 @@ LOW_A = 0
 class Net(nn.Module):
     def __init__(self, s_dim, a_dim):
         super(Net, self).__init__()
-        self.k = 1
-        self.feat = pn.PointNetEncoder(global_feat=False)
-        self.conv1 = torch.nn.Conv1d(1088, 512, 1)
-        self.conv2 = torch.nn.Conv1d(512, 256, 1)
-        self.conv3 = torch.nn.Conv1d(256, 128, 1)
-        self.conv4 = torch.nn.Conv1d(128, self.k, 1)
-        self.bn1 = nn.BatchNorm1d(512)
-        self.bn2 = nn.BatchNorm1d(256)
-        self.bn3 = nn.BatchNorm1d(128)
-
-        '''
         self.s_dim = s_dim
         self.a_dim = a_dim
 
@@ -63,28 +50,15 @@ class Net(nn.Module):
         self.v2 = nn.Linear(128, 64)
         self.v3 = nn.Linear(64, 32)
         self.v4 = nn.Linear(32, 1)
-
+        
         set_init([
             self.mu1, self.mu2, self.mu3, self.mu4,
             self.sigma1, self.sigma2, self.sigma3, self.sigma4,
             self.v1, self.v2, self.v3, self.v4])
         
-        '''
         self.distribution = torch.distributions.Normal
 
     def forward(self, x):
-        print('orig x: ', x.size())
-        batchsize = x.size()[0]
-        n_pts = x.size()[2]
-        x, trans = self.feat(x)
-        x = F.relu(self.bn1(self.conv1(x)))
-        x = F.relu(self.bn2(self.conv2(x)))
-        x = F.relu(self.bn3(self.conv3(x)))
-        x = self.conv4(x)
-        print('after conv4 x: ', x.size())
-        x = x.transpose(2,1).contiguous()
-
-        '''
         mu = F.relu(self.mu1(x))
         mu = F.relu(self.mu2(mu))
         mu = F.relu(self.mu3(mu))
@@ -101,7 +75,6 @@ class Net(nn.Module):
         values = self.v4(x)
 
         # mu = torch.cat((mu_pre, mu), 1)
-        '''
         return mu, sigma, values
 
     def choose_action(self, s):
@@ -150,12 +123,6 @@ class Worker(mp.Process):
             xyz_lst.append(-1 * self.env.side_len)
         return np.array([xyz_lst])/self.env.side_len + 1
 
-    def atoms2points(self, atoms):
-        xyz_lst = []
-        for at in atoms:
-            xyz_lst.append(list(at.position))
-        return np.array([xyz_lst])/self.env.side_len
-
 
     def loss(self, x, atoms, distance):
         ret = 0
@@ -173,8 +140,7 @@ class Worker(mp.Process):
         np.random.seed(self.seed)
         while self.g_ep.value < MAX_EP:
             s_atoms = self.env.reset()
-            s_xyz = self.atoms2points(s_atoms)
-            print(s_xyz)
+            s_xyz = self.atoms2xyz(s_atoms)
             
             buffer_s, buffer_a, buffer_r = [], [], []
             r_history = []
@@ -199,7 +165,7 @@ class Worker(mp.Process):
                 # print(len(s_), r, xyz)
                 
                 s_atoms = s_
-                s_ = self.atoms2points(s_)
+                s_ = self.atoms2xyz(s_)
                 s_xyz = s_
 
                 if t == MAX_EP_STEP - 1:
