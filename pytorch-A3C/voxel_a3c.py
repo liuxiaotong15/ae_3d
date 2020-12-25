@@ -122,13 +122,13 @@ class Net(nn.Module):
         m = self.distribution(mu, sigma)
         log_prob = m.log_prob(a)
         entropy = 0.5 + 0.5 * math.log(2 * math.pi) + torch.log(torch.clamp(m.scale, 1e-10))  # exploration
-        print('entropy: ', entropy)
-        print('log_prob: ', log_prob)
-        print('td: ', td.detach(), 'v_t: ', v_t, 'values: ', values, 'mu: ', mu, 'sigma: ', sigma)
+        # print('entropy: ', entropy)
+        # print('log_prob: ', log_prob)
+        # print('td: ', td.detach(), 'v_t: ', v_t, 'values: ', values, 'mu: ', mu, 'sigma: ', sigma)
         exp_v = log_prob * td.detach() + 0.005 * entropy
         a_loss = -exp_v
         total_loss = (a_loss + c_loss).mean()
-        print('total_loss: ', total_loss)
+        # print('total_loss: ', total_loss)
         # for s_idx in range(s.shape[0]):
         #     for a_idx in range(a.shape[1]):
         #         weight = 1.0
@@ -206,8 +206,9 @@ class Worker(mp.Process):
             ep_r = 0.
             for t in range(MAX_EP_STEP):
                 if self.name == 'w0':
-                    print('std max: ', np.amax(s[0]), 'min: ', np.amin(s[0]), 'mean: ', np.average(s[0]), 'atoms cnt: ', t+1)
-                    print('mean max: ', np.amax(s[1]), 'min: ', np.amin(s[1]), 'mean: ', np.average(s[1]), 'atoms cnt: ', t+1)
+                    pass
+                    # print('std max: ', np.amax(s[0]), 'min: ', np.amin(s[0]), 'mean: ', np.average(s[0]), 'atoms cnt: ', t+1)
+                    # print('mean max: ', np.amax(s[1]), 'min: ', np.amin(s[1]), 'mean: ', np.average(s[1]), 'atoms cnt: ', t+1)
                     # print('model.state_dict().keys(): ', self.lnet.state_dict().keys())
                     # print('model.mu4.weight: ', self.lnet.mu4.weight)
                 #     self.env.render()
@@ -248,7 +249,7 @@ class Worker(mp.Process):
                             threshold /= 2
                         else:
                             break
-                    print('False in masked_array: ', np.sum(ma1.mask==False))
+                    # print('False in masked_array: ', np.sum(ma1.mask==False))
                     # ma2 = ma.masked_array(s2, ma1.filled()>0.01)
                     # ma3 = ma.masked_array(s3, ma2.filled()>0.01)
                     # result1 = ma.where(s3 == ma3.filled().min())
