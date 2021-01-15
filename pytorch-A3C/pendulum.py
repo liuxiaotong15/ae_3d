@@ -28,7 +28,7 @@ class PendulumEnv(gym.Env):
     }
 
     side_len = 2 # A
-    max_atoms_count = 3
+    max_atoms_count = 4
     
     global_min_energy = [0] * 80
     std_ans_morse_clst = \
@@ -83,14 +83,14 @@ class PendulumEnv(gym.Env):
         atom_cnt = len(self.state_atoms)
         self.state_atoms.set_calculator(morse_calc)
         engy = self.state_atoms.get_potential_energy()
-        
-        reward = (engy)/(self.std_ans_morse_clst[atom_cnt-1])
 
-        if atom_cnt == self.max_atoms_count or reward < 0:
+        valid = (engy)/(self.std_ans_morse_clst[atom_cnt-1])
+        reward = math.exp(engy)/math.exp(self.std_ans_morse_clst[atom_cnt-1])
+
+        if atom_cnt == self.max_atoms_count or valid < 0:
             done = True
 
-        reward = max(0, reward)
-        msg = 'test ok...'
+        msg = 'Good_luck!!!'
         return self.state_atoms, reward, done, msg
 
     def render(self, mode='human'):
