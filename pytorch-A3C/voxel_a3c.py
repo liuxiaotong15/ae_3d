@@ -257,36 +257,42 @@ class Worker(mp.Process):
                     x, y, z = 0, 0, 0
                     if result1[0].shape[0] != 0:
                         x, y, z = result1[0][0], result1[1][0], result1[2][0]
-                    # print(x, y, z, s[3][x][y][z])
-                    # cal the delta x, y, z
-                    # action = s[0, max(0, x-1):min(x+2, stt_sz), max(0, y-1):min(y+2, stt_sz), max(0, z-1):min(z+2, stt_sz)]
-                    # print(action.shape)
-                    # center of small action
-                    dx, dy, dz = 0, 0, 0
+
+                    ################ cal the delta x, y, z #####################
                     for i in range(s.shape[1]):
                         if abs(x-i) == 1:
-                            if (s[-1][i][y][z] - v) * (s[-1][x][y][z] - v) < 0:
-                                dx = ((i-x) * abs(s[-1][x][y][z] - v)/(abs(s[-1][x][y][z] - v) + abs((s[-1][i][y][z] - v))))
+                            error_i = s[-1][i][y][z] - v
+                            error_x = s[-1][x][y][z] - v
+                            if error_i * error_x < 0:
+                                ########## smaller error means higher weight ##############
+                                x = (abs(x * error_i) + abs(i * error_x))/(abs(error_i) + abs(error_x))
                                 break
+                        else:
+                            pass
+
                     for j in range(s.shape[2]):
                         if abs(y-j) == 1:
-                            if (s[-1][x][j][z] - v) * (s[-1][x][y][z] - v) < 0:
-                                dy = ((j-y) * abs(s[-1][x][y][z] - v)/(abs(s[-1][x][y][z] - v) + abs((s[-1][x][j][z] - v))))
+                            error_j = s[-1][x][j][z] - v
+                            error_y = s[-1][x][y][z] - v
+                            if error_j * error_y < 0:
+                                ########## smaller error means higher weight ##############
+                                y = (abs(y * error_j) + abs(j * error_y))/(abs(error_j) + abs(error_y))
                                 break
+                        else:
+                            pass
+                    
                     for k in range(s.shape[3]):
                         if abs(z-k) == 1:
-                            if (s[-1][x][y][k] - v) * (s[-1][x][y][z] - v) < 0:
-                                dz = ((k-z) * abs(s[-1][x][y][z] - v)/(abs(s[-1][x][y][z] - v) + abs((s[-1][x][y][k] - v))))
+                            error_k = s[-1][x][y][k] - v
+                            error_z = s[-1][x][y][z] - v
+                            if error_k * error_z < 0:
+                                ########## smaller error means higher weight ##############
+                                z = (abs(z * error_k) + abs(k * error_z))/(abs(error_k) + abs(error_z))
                                 break
-                    # print(dx, dy, dz)
-                    # x2, y2, z2 = x2/np.sum(1/action), y2/np.sum(1/action), z2/np.sum(1/action)
-
-
-                    # print(s.shape, x2, y2, z2)
-                    # return np.array([x2/stt_sz, y2/stt_sz, z2/stt_sz])
-                    # return np.array([x/stt_sz, y/stt_sz, z/stt_sz])
-
-                    xyz = np.array([(x+dx/3)/stt_sz, (y+dy/3)/stt_sz, (z+dz/3)/stt_sz])
+                        else:
+                            pass
+                    
+                    xyz = np.array([(x)/stt_sz, (y)/stt_sz, (z)/stt_sz])
                     s_, r, done, _ = self.env.step(xyz)
                 else:
                     xyz = np.array([0.5, 0.5, 0.5])
