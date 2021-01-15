@@ -86,7 +86,7 @@ class PendulumEnv(gym.Env):
 
         valid = (engy)/(self.std_ans_morse_clst[atom_cnt-1])
         try:
-            reward = math.exp(engy)/math.exp(self.std_ans_morse_clst[atom_cnt-1])
+            reward = math.exp(-1 * engy)/math.exp(-1 * self.std_ans_morse_clst[atom_cnt-1])
         except OverflowError:
             reward = 0
 

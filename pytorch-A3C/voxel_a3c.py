@@ -256,7 +256,7 @@ class Worker(mp.Process):
                     # xyz in small action
                     x, y, z = 0, 0, 0
                     if result1[0].shape[0] != 0:
-                        x, y, z = result1[0][0], result1[1][0], result1[2][0]
+                        x, y, z = int(result1[0][0]), int(result1[1][0]), int(result1[2][0])
 
                     ################ cal the delta x, y, z #####################
                     for i in range(s.shape[1]):
