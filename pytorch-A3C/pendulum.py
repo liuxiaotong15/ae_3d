@@ -85,7 +85,10 @@ class PendulumEnv(gym.Env):
         engy = self.state_atoms.get_potential_energy()
 
         valid = (engy)/(self.std_ans_morse_clst[atom_cnt-1])
-        reward = math.exp(engy)/math.exp(self.std_ans_morse_clst[atom_cnt-1])
+        try:
+            reward = math.exp(engy)/math.exp(self.std_ans_morse_clst[atom_cnt-1])
+        except OverflowError:
+            reward = 0
 
         if atom_cnt == self.max_atoms_count or valid < 0:
             done = True
