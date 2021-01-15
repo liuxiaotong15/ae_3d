@@ -224,10 +224,10 @@ class Worker(mp.Process):
                 # a[1] = max(a[0], a[1])
                 # a[2] = max(a[1], a[2])
 
-                v0 = a[0] * (t+1)
-                v1 = a[1] * (t+1)
-                v2 = a[2] * (t+1)
-                v = a[-1] * (t+1)
+                v0 = a[0] # * (t+1)
+                v1 = a[1] # * (t+1)
+                v2 = a[2] # * (t+1)
+                v = a[-1] # * (t+1)
                 xyz = np.array([0, 0, 0])
                 if v0>=0 and v1>=0 and v2>=0:
                     # s1 = np.power(s[0], 2)
