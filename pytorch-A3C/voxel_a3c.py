@@ -255,6 +255,7 @@ class Worker(mp.Process):
                     result1 = np.where(s_sum == np.amin(s_sum))
                     # xyz in small action
                     x, y, z = 0, 0, 0
+                    x_new, y_new, z_new = 0, 0, 0
                     if result1[0].shape[0] != 0:
                         x, y, z = int(result1[0][0]), int(result1[1][0]), int(result1[2][0])
 
@@ -265,10 +266,12 @@ class Worker(mp.Process):
                             error_x = s[-1][x][y][z] - v
                             if error_i * error_x < 0:
                                 ########## smaller error means higher weight ##############
-                                x = (abs(x * error_i) + abs(i * error_x))/(abs(error_i) + abs(error_x))
+                                x_new = (abs(x * error_i) + abs(i * error_x))/(abs(error_i) + abs(error_x))
                                 break
                         else:
                             pass
+                    else:
+                        x_new = x
 
                     for j in range(s.shape[2]):
                         if abs(y-j) == 1:
@@ -276,10 +279,12 @@ class Worker(mp.Process):
                             error_y = s[-1][x][y][z] - v
                             if error_j * error_y < 0:
                                 ########## smaller error means higher weight ##############
-                                y = (abs(y * error_j) + abs(j * error_y))/(abs(error_j) + abs(error_y))
+                                y_new = (abs(y * error_j) + abs(j * error_y))/(abs(error_j) + abs(error_y))
                                 break
                         else:
                             pass
+                    else:
+                        y_new = y
                     
                     for k in range(s.shape[3]):
                         if abs(z-k) == 1:
@@ -287,12 +292,14 @@ class Worker(mp.Process):
                             error_z = s[-1][x][y][z] - v
                             if error_k * error_z < 0:
                                 ########## smaller error means higher weight ##############
-                                z = (abs(z * error_k) + abs(k * error_z))/(abs(error_k) + abs(error_z))
+                                z_new = (abs(z * error_k) + abs(k * error_z))/(abs(error_k) + abs(error_z))
                                 break
                         else:
                             pass
+                    else:
+                        z_new = z
                     
-                    xyz = np.array([(x)/stt_sz, (y)/stt_sz, (z)/stt_sz])
+                    xyz = np.array([(x_new)/stt_sz, (y_new)/stt_sz, (z_new)/stt_sz])
                     s_, r, done, _ = self.env.step(xyz)
                 else:
                     xyz = np.array([0.5, 0.5, 0.5])
