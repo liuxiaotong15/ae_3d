@@ -90,7 +90,7 @@ ax1.set_ylim(ymin, ymax)
 
 ax.tick_params(labelsize=15)
 ax1.tick_params(labelsize=15)
-ax.legend(loc='fit', prop=font_legend)
+ax.legend(loc='best', prop=font_legend)
 ax.grid(True)
 
 ax.set_ylabel('Reward', font_axis)
